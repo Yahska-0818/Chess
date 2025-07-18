@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+svg {
+  transition: transform 200ms;
+}
+
+svg:hover {
+  transform: translateY(-5px);
+}
