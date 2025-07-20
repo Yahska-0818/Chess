@@ -143,11 +143,10 @@ function App() {
           newCords.push(diagonalLeft)
         }
       }
-
-
-
       setLegalMove(newCords)
-      setSelectedPiece([pieceType,[row,col]])
+      const selectedPieceCopy = [...selectedPiece]
+      selectedPieceCopy.push([pieceType,[row,col]])
+      setSelectedPiece(selectedPieceCopy)
     }
   }
 
@@ -155,14 +154,34 @@ function App() {
     const row = parseInt(key[0])
     const col = parseInt(key[2])
     const boardCopy = chessBoard.map(row=>[...row])
+    const blackPiecesCopy = [...blackPieces]
+    const whitePiecesCopy = [...whitePieces]
     if (chessBoard[row][col]) {
       const pieceColor = getColor([row,col])
       const pieceType = getType([row,col])
       getLegalMoves(pieceColor,pieceType,row,col)
+      if (selectedPiece.length != 0) {
+        const colorOne = getColor([selectedPiece[0][1][0],selectedPiece[0][1][1]])
+        if (colorOne != pieceColor) {
+          if (pieceColor == "black") {
+            blackPiecesCopy.push(chessBoard[row][col][0])
+            setBlackPieces(blackPiecesCopy)
+            boardCopy[row][col] = boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]]
+            boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]] = ""
+            setChessBoard(boardCopy)
+          } else {
+            whitePiecesCopy.push(chessBoard[row][col][0])
+            setWhitePieces(whitePiecesCopy)
+            boardCopy[row][col] = boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]]
+            boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]] = ""
+            setChessBoard(boardCopy)
+          }
+        }
+      }
     } else {
       if (selectedPiece.length != 0 && isLegal(row,col)) {
-        const originalRow = selectedPiece[1][0]
-        const originalCol = selectedPiece[1][1]
+        const originalRow = selectedPiece[selectedPiece.length-1][1][0]
+        const originalCol = selectedPiece[selectedPiece.length-1][1][1]
         boardCopy[originalRow][originalCol][1] += 1
         boardCopy[row][col] = boardCopy[originalRow][originalCol]
         boardCopy[originalRow][originalCol] = ""
@@ -183,7 +202,7 @@ function App() {
     <div className="flex justify-evenly items-center min-h-screen gap-6">
       <ul className="whitePieces border-2 border-black grid grid-cols-2 grid-rows-8 min-h-250 w-80 bg-yellow-200">
         {whitePieces.map((piece, pieceIndex) => (
-          <li key={pieceIndex} className="w-30" >{piece[0]}</li>
+          <li key={pieceIndex} className="w-30" >{piece}</li>
         ))}
       </ul>
       <ul className="chessBox border-8 border-black w-250 h-250 grid grid-cols-8 grid-rows-8">
@@ -207,7 +226,7 @@ function App() {
       </ul>
       <ul className="blackPieces border-2 border-black grid grid-cols-2 grid-rows-8 min-h-250 w-80 bg-yellow-800">
         {blackPieces.map((piece, pieceIndex) => (
-          <li key={pieceIndex} className="w-30" >{piece[0]}</li>
+          <li key={pieceIndex} className="w-30" >{piece}</li>
         ))}
       </ul>
     </div>
