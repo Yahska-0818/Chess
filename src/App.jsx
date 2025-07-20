@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const pieces = {
   "black": {
@@ -94,23 +94,40 @@ function App() {
   const [chessBoard,setChessBoard] = useState(Array.from({ length: 8 }, () => Array(8).fill()))
   const [legalMove,setLegalMove] = useState([])
   const [selectedPiece,setSelectedPiece] = useState([])
+  const [whitePieces,setWhitePieces] = useState([])
+  const [blackPieces,setBlackPieces] = useState([])
 
-  const startGame = () => {
+  useEffect(()=>{
     const boardCopy = chessBoard.map(row => [...row])
     setChessBoard(populateInitialBoard(boardCopy))
-  }
+  },[])
 
-  const getNewRow = (pieceColor,pieceType,row,col) => {
+  const getLegalMoves = (pieceColor,pieceType,row,col) => {
     const directionMultiplier = pieceColor == "white" ? -1 : 1
     if (pieceType == "pawn") {
       let movesDone = chessBoard[row][col][1]
       let newCords = []
+      const forward1 = [row+1*directionMultiplier,col]
+      const forward2 = [row+2*directionMultiplier,col]
+      const diagonalRight = [row+1*directionMultiplier,col+1]
+      const diagonalLeft = [row+1*directionMultiplier,col-1]
       if (movesDone == 0) {
-        newCords.push([row+1*directionMultiplier,col])
-        newCords.push([row+2*directionMultiplier,col])
-      } else {
-        newCords.push([row+1*directionMultiplier,col])
+        if (!(chessBoard[forward1[0]][forward1[1]])) {
+          newCords.push(forward1)
+          if (!(chessBoard[forward2[0]][forward2[1]])) {
+            newCords.push(forward2)
+          }
+        }
+      } else if (movesDone > 0) {
+          if (!(chessBoard[forward1[0]][forward1[1]])) {
+            newCords.push(forward1)
+          }
+      } else if (chessBoard[diagonalRight[0]][diagonalRight[1]]) {
+        console.log(chessBoard[diagonalRight[0]][diagonalRight[1]])
       }
+
+
+
       setLegalMove(newCords)
       setSelectedPiece([pieceType,[row,col]])
     }
@@ -123,7 +140,7 @@ function App() {
     if (chessBoard[row][col]) {
       const pieceColor = chessBoard[row][col][0].props.className.slice(0,5)
       const pieceType = chessBoard[row][col][0].props.className.slice(6,-12)
-      getNewRow(pieceColor,pieceType,row,col)
+      getLegalMoves(pieceColor,pieceType,row,col)
     } else {
       if (selectedPiece.length != 0 && isLegal(row,col)) {
         const originalRow = selectedPiece[1][0]
@@ -145,10 +162,12 @@ function App() {
 
 
   return (
-    <div className="flex justify-center items-center min-h-screen gap-6">
-      <div className="buttons">
-        <button onClick={() => startGame()} className="border-2 border-black p-4 rounded">Start</button>
-      </div>
+    <div className="flex justify-evenly items-center min-h-screen gap-6">
+      <ul className="whitePieces border-2 border-black grid grid-cols-2 grid-rows-8 min-h-250 w-80 bg-yellow-200">
+        {whitePieces.map((piece, pieceIndex) => (
+          <li key={pieceIndex} className="w-30" >{piece[0]}</li>
+        ))}
+      </ul>
       <ul className="chessBox border-8 border-black w-250 h-250 grid grid-cols-8 grid-rows-8">
         {chessBoard.map((chessRow, rowIndex) => (
           chessRow.map((cell, colIndex) => (
@@ -166,6 +185,11 @@ function App() {
               {cell?cell[0]:cell}
             </li>
           ))
+        ))}
+      </ul>
+      <ul className="blackPieces border-2 border-black grid grid-cols-2 grid-rows-8 min-h-250 w-80 bg-yellow-800">
+        {blackPieces.map((piece, pieceIndex) => (
+          <li key={pieceIndex} className="w-30" >{piece[0]}</li>
         ))}
       </ul>
     </div>
