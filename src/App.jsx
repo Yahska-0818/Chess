@@ -160,7 +160,7 @@ function App() {
       const pieceColor = getColor([row,col])
       const pieceType = getType([row,col])
       getLegalMoves(pieceColor,pieceType,row,col)
-      if (selectedPiece.length != 0) {
+      if (selectedPiece.length != 0 && isLegal(row,col)) {
         const colorOne = getColor([selectedPiece[0][1][0],selectedPiece[0][1][1]])
         if (colorOne != pieceColor) {
           if (pieceColor == "black") {
@@ -204,9 +204,9 @@ function App() {
 
   return (
     <div className="flex justify-evenly items-center min-h-screen gap-6">
-      <ul className="whitePieces border-2 border-black grid grid-cols-2 grid-rows-8 min-h-250 w-80 bg-yellow-200">
+      <ul className="whitePieces border-2 border-black grid grid-cols-2 grid-rows-8 w-80 min-h-250 bg-yellow-200 place-items-center">
         {whitePieces.map((piece, pieceIndex) => (
-          <li key={pieceIndex} className="w-30" >{piece}</li>
+          <li key={pieceIndex} className="w-30 flex items-center justify-center">{piece}</li>
         ))}
       </ul>
       <ul className="chessBox border-8 border-black w-250 h-250 grid grid-cols-8 grid-rows-8">
@@ -216,7 +216,7 @@ function App() {
               key={`r${rowIndex}c${colIndex}`}
               className={`w-full h-full flex items-center justify-center border ${
                 isLegal(rowIndex, colIndex)
-                  ? "bg-yellow-100"
+                  ? chessBoard[rowIndex][colIndex] ? "bg-red-600" : "bg-white"
                   : (colIndex + rowIndex) % 2 === 0
                   ? "bg-yellow-200"
                   : "bg-yellow-800"
@@ -228,9 +228,9 @@ function App() {
           ))
         ))}
       </ul>
-      <ul className="blackPieces border-2 border-black grid grid-cols-2 grid-rows-8 min-h-250 w-80 bg-yellow-800">
+      <ul className="blackPieces border-2 border-black grid grid-cols-2 grid-rows-8 w-80 min-h-250 bg-yellow-800 place-items-center">
         {blackPieces.map((piece, pieceIndex) => (
-          <li key={pieceIndex} className="w-30" >{piece}</li>
+          <li key={pieceIndex} className="w-30 flex items-center justify-center">{piece}</li>
         ))}
       </ul>
     </div>
