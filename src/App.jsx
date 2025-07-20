@@ -169,12 +169,16 @@ function App() {
             boardCopy[row][col] = boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]]
             boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]] = ""
             setChessBoard(boardCopy)
+            setLegalMove([])
+            setSelectedPiece([])
           } else {
             whitePiecesCopy.push(chessBoard[row][col][0])
             setWhitePieces(whitePiecesCopy)
             boardCopy[row][col] = boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]]
             boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]] = ""
             setChessBoard(boardCopy)
+            setLegalMove([])
+            setSelectedPiece([])
           }
         }
       }
