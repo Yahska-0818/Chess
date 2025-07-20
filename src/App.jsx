@@ -102,6 +102,16 @@ function App() {
     setChessBoard(populateInitialBoard(boardCopy))
   },[])
 
+  const getColor = (coords) => {
+    const color = chessBoard[coords[0]][coords[1]][0].props.className.slice(0,5)
+    return color
+  }
+
+  const getType = (coords) => {
+    const type = chessBoard[coords[0]][coords[1]][0].props.className.slice(6,-12)
+    return type
+  }
+
   const getLegalMoves = (pieceColor,pieceType,row,col) => {
     const directionMultiplier = pieceColor == "white" ? -1 : 1
     if (pieceType == "pawn") {
@@ -122,8 +132,16 @@ function App() {
           if (!(chessBoard[forward1[0]][forward1[1]])) {
             newCords.push(forward1)
           }
-      } else if (chessBoard[diagonalRight[0]][diagonalRight[1]]) {
-        console.log(chessBoard[diagonalRight[0]][diagonalRight[1]])
+      } if (chessBoard[diagonalRight[0]][diagonalRight[1]]) {
+        const secondPieceColor = getColor([diagonalRight[0],diagonalRight[1]])
+        if (secondPieceColor != pieceColor) {
+          newCords.push(diagonalRight)
+        }
+      } if (chessBoard[diagonalLeft[0]][diagonalLeft[1]]) {
+        const secondPieceColor = getColor([diagonalLeft[0],diagonalLeft[1]])
+        if (secondPieceColor != pieceColor) {
+          newCords.push(diagonalLeft)
+        }
       }
 
 
@@ -138,8 +156,8 @@ function App() {
     const col = parseInt(key[2])
     const boardCopy = chessBoard.map(row=>[...row])
     if (chessBoard[row][col]) {
-      const pieceColor = chessBoard[row][col][0].props.className.slice(0,5)
-      const pieceType = chessBoard[row][col][0].props.className.slice(6,-12)
+      const pieceColor = getColor([row,col])
+      const pieceType = getType([row,col])
       getLegalMoves(pieceColor,pieceType,row,col)
     } else {
       if (selectedPiece.length != 0 && isLegal(row,col)) {
