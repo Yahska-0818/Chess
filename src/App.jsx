@@ -128,6 +128,7 @@ function App() {
       if (selectedPiece.length != 0 && isLegal(row,col)) {
         const originalRow = selectedPiece[1][0]
         const originalCol = selectedPiece[1][1]
+        boardCopy[originalRow][originalCol][1] += 1
         boardCopy[row][col] = boardCopy[originalRow][originalCol]
         boardCopy[originalRow][originalCol] = ""
         setChessBoard(boardCopy)
