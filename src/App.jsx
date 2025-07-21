@@ -41,7 +41,7 @@ const pieces = {
     },
     "rook": {
       icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="white-rook w-fit h-fit" stroke="black" strokeWidth="1" fill="white"><title>chess-rook</title><path d="M5,20H19V22H5V20M17,2V5H15V2H13V5H11V2H9V5H7V2H5V8H7V18H17V8H19V2H17Z" /></svg>,
-      startingPosition: [[7,0],[7,7]],
+      startingPosition: [[7,0],[4,4]],
       moveCounter: 0
     },
     "knight": {
@@ -147,6 +147,40 @@ function App() {
       const selectedPieceCopy = [...selectedPiece]
       selectedPieceCopy.push([pieceType,[row,col]])
       setSelectedPiece(selectedPieceCopy)
+    } else if (pieceType == "rook") {
+      const possibleMoves = []
+      let rowForward = row-1;
+      if (rowForward > 0) {
+        while (!(chessBoard[rowForward][col]) && rowForward > -1) {
+          possibleMoves.push([rowForward,col])
+          rowForward--
+        }
+      }
+
+      let rowBack = row+1;
+      if (rowBack < 7) {
+        while (!(chessBoard[rowBack][col]) && rowBack < 8) {
+          possibleMoves.push([rowBack,col])
+          rowBack++
+        }
+      }
+
+      let colLeft = col-1;
+      if (colLeft > 0) {
+        while (!(chessBoard[row][colLeft]) && colLeft > -1) {
+          possibleMoves.push([row,colLeft])
+          colLeft--
+        }
+      }
+
+      let colRight = col+1;
+      if (colRight < 7) {
+        while (!(chessBoard[row][colRight]) && colRight < 8) {
+          possibleMoves.push([row,colRight])
+          colRight++
+        }
+      }
+      setLegalMove(possibleMoves)
     }
   }
 
