@@ -41,7 +41,7 @@ const pieces = {
     },
     "rook": {
       icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="white-rook w-fit h-fit" stroke="black" strokeWidth="1" fill="white"><title>chess-rook</title><path d="M5,20H19V22H5V20M17,2V5H15V2H13V5H11V2H9V5H7V2H5V8H7V18H17V8H19V2H17Z" /></svg>,
-      startingPosition: [[7,0],[4,4]],
+      startingPosition: [[7,0],[7,7]],
       moveCounter: 0
     },
     "knight": {
