@@ -96,6 +96,7 @@ function App() {
   const [selectedPiece,setSelectedPiece] = useState([])
   const [whitePieces,setWhitePieces] = useState([])
   const [blackPieces,setBlackPieces] = useState([])
+  const [turn,setTurn] = useState("white")
 
   useEffect(()=>{
     const boardCopy = chessBoard.map(row => [...row])
@@ -149,37 +150,7 @@ function App() {
       setSelectedPiece(selectedPieceCopy)
     } else if (pieceType == "rook") {
       const possibleMoves = []
-      let rowForward = row-1;
-      if (rowForward > 0) {
-        while (!(chessBoard[rowForward][col]) && rowForward > -1) {
-          possibleMoves.push([rowForward,col])
-          rowForward--
-        }
-      }
-
-      let rowBack = row+1;
-      if (rowBack < 7) {
-        while (!(chessBoard[rowBack][col]) && rowBack < 8) {
-          possibleMoves.push([rowBack,col])
-          rowBack++
-        }
-      }
-
-      let colLeft = col-1;
-      if (colLeft > 0) {
-        while (!(chessBoard[row][colLeft]) && colLeft > -1) {
-          possibleMoves.push([row,colLeft])
-          colLeft--
-        }
-      }
-
-      let colRight = col+1;
-      if (colRight < 7) {
-        while (!(chessBoard[row][colRight]) && colRight < 8) {
-          possibleMoves.push([row,colRight])
-          colRight++
-        }
-      }
+      
       setLegalMove(possibleMoves)
     }
   }
@@ -193,26 +164,30 @@ function App() {
     if (chessBoard[row][col]) {
       const pieceColor = getColor([row,col])
       const pieceType = getType([row,col])
-      getLegalMoves(pieceColor,pieceType,row,col)
-      if (selectedPiece.length != 0 && isLegal(row,col)) {
-        const colorOne = getColor([selectedPiece[0][1][0],selectedPiece[0][1][1]])
-        if (colorOne != pieceColor) {
-          if (pieceColor == "black") {
-            blackPiecesCopy.push(chessBoard[row][col][0])
-            setBlackPieces(blackPiecesCopy)
-            boardCopy[row][col] = boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]]
-            boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]] = ""
-            setChessBoard(boardCopy)
-            setLegalMove([])
-            setSelectedPiece([])
-          } else {
-            whitePiecesCopy.push(chessBoard[row][col][0])
-            setWhitePieces(whitePiecesCopy)
-            boardCopy[row][col] = boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]]
-            boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]] = ""
-            setChessBoard(boardCopy)
-            setLegalMove([])
-            setSelectedPiece([])
+      if (pieceColor == turn) {
+        getLegalMoves(pieceColor,pieceType,row,col)
+        if (selectedPiece.length != 0 && isLegal(row,col)) {
+          const colorOne = getColor([selectedPiece[0][1][0],selectedPiece[0][1][1]])
+          if (colorOne != pieceColor) {
+            if (pieceColor == "black") {
+              blackPiecesCopy.push(chessBoard[row][col][0])
+              setBlackPieces(blackPiecesCopy)
+              boardCopy[row][col] = boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]]
+              boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]] = ""
+              setChessBoard(boardCopy)
+              setLegalMove([])
+              setSelectedPiece([])
+              pieceColor == "white" ? setTurn("black") : setTurn("white")
+            } else {
+              whitePiecesCopy.push(chessBoard[row][col][0])
+              setWhitePieces(whitePiecesCopy)
+              boardCopy[row][col] = boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]]
+              boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]] = ""
+              setChessBoard(boardCopy)
+              setLegalMove([])
+              setSelectedPiece([])
+              pieceColor == "white" ? setTurn("black") : setTurn("white")
+            }
           }
         }
       }
@@ -220,12 +195,14 @@ function App() {
       if (selectedPiece.length != 0 && isLegal(row,col)) {
         const originalRow = selectedPiece[selectedPiece.length-1][1][0]
         const originalCol = selectedPiece[selectedPiece.length-1][1][1]
+        const pieceColor = getColor([originalRow,originalCol])
         boardCopy[originalRow][originalCol][1] += 1
         boardCopy[row][col] = boardCopy[originalRow][originalCol]
         boardCopy[originalRow][originalCol] = ""
         setChessBoard(boardCopy)
         setLegalMove([])
         setSelectedPiece([])
+        pieceColor == "white" ? setTurn("black") : setTurn("white")
       }
     }
   }
