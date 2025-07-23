@@ -214,115 +214,56 @@ function App() {
   }
 
   const pieceClick = (key) => {
-    const row = parseInt(key[0])
-    const col = parseInt(key[2])
-    const boardCopy = chessBoard.map(row=>[...row])
-    const blackPiecesCopy = [...blackPieces]
-    const whitePiecesCopy = [...whitePieces]
-    if (chessBoard[row][col]) {
-      const pieceColor = getColor([row,col])
-      const pieceType = getType([row,col])
-      if (pieceColor == turn) {
-        getLegalMoves(pieceColor,pieceType,row,col)
-        if (selectedPiece.length != 0 && isLegal(row,col)) {
-          const colorOne = getColor([selectedPiece[0][1][0],selectedPiece[0][1][1]])
-          if (colorOne != pieceColor) {
-            if (pieceColor == "black") {
-              blackPiecesCopy.push(chessBoard[row][col][0])
-              setBlackPieces(blackPiecesCopy)
-              boardCopy[row][col] = boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]]
-              boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]] = ""
-              setChessBoard(boardCopy)
-              setLegalMove([])
-              setSelectedPiece([])
-              pieceColor == "white" ? setTurn("black") : setTurn("white")
+    const row = parseInt(key[0]);
+    const col = parseInt(key[2]);
+    const boardCopy = chessBoard.map(row => [...row]);
+    const blackPiecesCopy = [...blackPieces];
+    const whitePiecesCopy = [...whitePieces];
+
+    if (selectedPiece.length !== 0) {
+      if (isLegal(row, col)) {
+        const [pieceType, [fromRow, fromCol]] = selectedPiece[0];
+        const selectedColor = getColor([fromRow, fromCol]);
+        const destinationPiece = chessBoard[row][col];
+
+        if (destinationPiece) {
+          const targetColor = getColor([row, col]);
+          if (selectedColor !== targetColor) {
+            if (targetColor === "white") {
+              whitePiecesCopy.push(destinationPiece[0]);
+              setWhitePieces(whitePiecesCopy);
             } else {
-              whitePiecesCopy.push(chessBoard[row][col][0])
-              setWhitePieces(whitePiecesCopy)
-              boardCopy[row][col] = boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]]
-              boardCopy[selectedPiece[0][1][0]][selectedPiece[0][1][1]] = ""
-              setChessBoard(boardCopy)
-              setLegalMove([])
-              setSelectedPiece([])
-              pieceColor == "white" ? setTurn("black") : setTurn("white")
+              blackPiecesCopy.push(destinationPiece[0]);
+              setBlackPieces(blackPiecesCopy);
             }
+            boardCopy[fromRow][fromCol][1] += 1;
+            boardCopy[row][col] = boardCopy[fromRow][fromCol];
+            boardCopy[fromRow][fromCol] = "";
           }
+        } else {
+          boardCopy[fromRow][fromCol][1] += 1;
+          boardCopy[row][col] = boardCopy[fromRow][fromCol];
+          boardCopy[fromRow][fromCol] = "";
         }
-      }
-    } else {
-      if (selectedPiece.length != 0 && isLegal(row,col)) {
-        const originalRow = selectedPiece[selectedPiece.length-1][1][0]
-        const originalCol = selectedPiece[selectedPiece.length-1][1][1]
-        const pieceColor = getColor([originalRow,originalCol])
-        boardCopy[originalRow][originalCol][1] += 1
-        boardCopy[row][col] = boardCopy[originalRow][originalCol]
-        boardCopy[originalRow][originalCol] = ""
-        setChessBoard(boardCopy)
-        setLegalMove([])
-        setSelectedPiece([])
-        pieceColor == "white" ? setTurn("black") : setTurn("white")
+
+        setChessBoard(boardCopy);
+        setLegalMove([]);
+        setSelectedPiece([]);
+        setTurn(selectedColor === "white" ? "black" : "white");
+        return;
+      } else {
+        setSelectedPiece([]);
+        setLegalMove([]);
       }
     }
-  }
-
-  // const pieceClick = (key) => {
-  //   const row = parseInt(key[0]);
-  //   const col = parseInt(key[2]);
-  //   const boardCopy = chessBoard.map(row => [...row]);
-  //   const blackPiecesCopy = [...blackPieces];
-  //   const whitePiecesCopy = [...whitePieces];
-
-  //   // If there's already a selected piece, attempt move or capture
-  //   if (selectedPiece.length !== 0) {
-  //     if (isLegal(row, col)) {
-  //       const [pieceType, [fromRow, fromCol]] = selectedPiece[0];
-  //       const selectedColor = getColor([fromRow, fromCol]);
-  //       const destinationPiece = chessBoard[row][col];
-
-  //       // If destination has a piece, it's a capture
-  //       if (destinationPiece) {
-  //         const targetColor = getColor([row, col]);
-  //         if (selectedColor !== targetColor) {
-  //           // Capture
-  //           if (targetColor === "white") {
-  //             whitePiecesCopy.push(destinationPiece[0]);
-  //             setWhitePieces(whitePiecesCopy);
-  //           } else {
-  //             blackPiecesCopy.push(destinationPiece[0]);
-  //             setBlackPieces(blackPiecesCopy);
-  //           }
-  //           boardCopy[fromRow][fromCol][1] += 1;
-  //           boardCopy[row][col] = boardCopy[fromRow][fromCol];
-  //           boardCopy[fromRow][fromCol] = "";
-  //         }
-  //       } else {
-  //         // Normal move
-  //         boardCopy[fromRow][fromCol][1] += 1;
-  //         boardCopy[row][col] = boardCopy[fromRow][fromCol];
-  //         boardCopy[fromRow][fromCol] = "";
-  //       }
-
-  //       setChessBoard(boardCopy);
-  //       setLegalMove([]);
-  //       setSelectedPiece([]);
-  //       setTurn(selectedColor === "white" ? "black" : "white");
-  //       return;
-  //     } else {
-  //       // Reset selection if user clicks something invalid
-  //       setSelectedPiece([]);
-  //       setLegalMove([]);
-  //     }
-  //   }
-
-  //   // If no piece is selected, and this square has a piece of current turn
-  //   if (chessBoard[row][col]) {
-  //     const pieceColor = getColor([row, col]);
-  //     const pieceType = getType([row, col]);
-  //     if (pieceColor === turn) {
-  //       getLegalMoves(pieceColor, pieceType, row, col);
-  //     }
-  //   }
-  // };
+    if (chessBoard[row][col]) {
+      const pieceColor = getColor([row, col]);
+      const pieceType = getType([row, col]);
+      if (pieceColor === turn) {
+        getLegalMoves(pieceColor, pieceType, row, col);
+      }
+    }
+  };
 
 
   const isLegal = (row,col) => {
