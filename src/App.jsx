@@ -308,7 +308,7 @@ function App() {
       const forwardRight = [row - 1, col + 1]
       const backwardLeft = [row + 1, col - 1]
       const backwardRight = [row + 1, col + 1]
-      for (let i = forwardLeft[0], j = forwardLeft[1]; i > -1, j > -1; i--,j--) {
+      for (let i = forwardLeft[0], j = forwardLeft[1]; i > -1 && j > -1; i--, j--) {
         if (isValidPosition(i,j)) {
           if (chessBoard[i][j]) {
             const nextCol = getColor([i,j])
@@ -323,7 +323,7 @@ function App() {
           }
         }
       }
-      for (let i = forwardRight[0], j = forwardRight[1]; i > -1, j < 8; i--,j++) {
+      for (let i = forwardRight[0], j = forwardRight[1]; i > -1 && j < 8; i--, j++) {
         if (isValidPosition(i,j)) {
           if (chessBoard[i][j]) {
             const nextCol = getColor([i,j])
@@ -338,7 +338,7 @@ function App() {
           }
         }
       }
-      for (let i = backwardLeft[0], j = backwardLeft[1]; i < 8, j > -1; i++,j--) {
+      for (let i = backwardLeft[0], j = backwardLeft[1]; i < 8 && j > -1; i++, j--) {
         if (isValidPosition(i,j)) {
           if (chessBoard[i][j]) {
             const nextCol = getColor([i,j])
@@ -353,7 +353,128 @@ function App() {
           }
         }
       }
-      for (let i = backwardRight[0], j = forwardRight[1]; i < 8, j < 8; i++,j++) {
+      for (let i = backwardRight[0], j = backwardRight[1]; i < 8 && j < 8; i++, j++) {
+        if (isValidPosition(i,j)) {
+          if (chessBoard[i][j]) {
+            const nextCol = getColor([i,j])
+            if (nextCol != pieceColor) {
+              possibleMoves.push([i,j])
+              break
+            } else {
+              break
+            }
+          } else {
+            possibleMoves.push([i,j])
+          }
+        }
+      }
+    } else if (pieceType == "queen") {
+      const forwardLeft = [row - 1, col - 1]
+      const forwardRight = [row - 1, col + 1]
+      const backwardLeft = [row + 1, col - 1]
+      const backwardRight = [row + 1, col + 1]
+      const forward = row-1
+      const backward = row + 1
+      const left = col - 1
+      const right = col + 1
+      for (let i = forward; i > -1; i--) {
+        if (chessBoard[i][col]) {
+          const nextCol = getColor([i,col])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([i,col])
+            break
+          } else {
+            break
+          }
+        } else {
+          possibleMoves.push([i,col])
+        }
+      }
+      for (let i = backward; i < 8; i++) {
+        if (chessBoard[i][col]) {
+          const nextCol = getColor([i,col])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([i,col])
+            break
+          } else{
+            break
+          }
+        } else {
+          possibleMoves.push([i,col])
+        }
+      }
+      for (let i = left; i > -1; i--) {
+        if (chessBoard[row][i]) {
+          const nextCol = getColor([row,i])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([row,i])
+            break
+          } else{
+            break
+          }
+        } else {
+          possibleMoves.push([row,i])
+        }
+      }
+      for (let i = right; i < 8; i++) {
+        if (chessBoard[row][i]) {
+          const nextCol = getColor([row,i])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([row,i])
+            break
+          } else{
+            break
+          }
+        } else {
+          possibleMoves.push([row,i])
+        }
+      }
+      for (let i = forwardLeft[0], j = forwardLeft[1]; i > -1 && j > -1; i--, j--) {
+        if (isValidPosition(i,j)) {
+          if (chessBoard[i][j]) {
+            const nextCol = getColor([i,j])
+            if (nextCol != pieceColor) {
+              possibleMoves.push([i,j])
+              break
+            } else {
+              break
+            }
+          } else {
+            possibleMoves.push([i,j])
+          }
+        }
+      }
+      for (let i = forwardRight[0], j = forwardRight[1]; i > -1 && j < 8; i--, j++) {
+        if (isValidPosition(i,j)) {
+          if (chessBoard[i][j]) {
+            const nextCol = getColor([i,j])
+            if (nextCol != pieceColor) {
+              possibleMoves.push([i,j])
+              break
+            } else {
+              break
+            }
+          } else {
+            possibleMoves.push([i,j])
+          }
+        }
+      }
+      for (let i = backwardLeft[0], j = backwardLeft[1]; i < 8 && j > -1; i++, j--) {
+        if (isValidPosition(i,j)) {
+          if (chessBoard[i][j]) {
+            const nextCol = getColor([i,j])
+            if (nextCol != pieceColor) {
+              possibleMoves.push([i,j])
+              break
+            } else {
+              break
+            }
+          } else {
+            possibleMoves.push([i,j])
+          }
+        }
+      }
+      for (let i = backwardRight[0], j = backwardRight[1]; i < 8 && j < 8; i++, j++) {
         if (isValidPosition(i,j)) {
           if (chessBoard[i][j]) {
             const nextCol = getColor([i,j])
