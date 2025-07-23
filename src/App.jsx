@@ -489,6 +489,95 @@ function App() {
           }
         }
       }
+    } else if (pieceType == "king") {
+      const forwardLeft = [row - 1, col - 1]
+      const forwardRight = [row - 1, col + 1]
+      const backwardLeft = [row + 1, col - 1]
+      const backwardRight = [row + 1, col + 1]
+      const forward = row-1
+      const backward = row + 1
+      const left = col - 1
+      const right = col + 1
+      if (isValidPosition(forwardLeft[0],forwardLeft[1])) {
+        if (chessBoard[forwardLeft[0]][forwardLeft[1]]) {
+          const nextCol = getColor([forwardLeft[0],forwardLeft[1]])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([forwardLeft[0],forwardLeft[1]])
+          }
+        } else {
+          possibleMoves.push([forwardLeft[0],forwardLeft[1]])
+        }
+      }
+      if (isValidPosition(forwardRight[0],forwardRight[1])) {
+        if (chessBoard[forwardRight[0]][forwardRight[1]]) {
+          const nextCol = getColor([forwardRight[0],forwardRight[1]])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([forwardRight[0],forwardRight[1]])
+          }
+        } else {
+          possibleMoves.push([forwardRight[0],forwardRight[1]])
+        }
+      }
+      if (isValidPosition(backwardLeft[0],backwardLeft[1])) {
+        if (chessBoard[backwardLeft[0]][backwardLeft[1]]) {
+          const nextCol = getColor([backwardLeft[0],backwardLeft[1]])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([backwardLeft[0],backwardLeft[1]])
+          }
+        } else {
+          possibleMoves.push([backwardLeft[0],backwardLeft[1]])
+        }
+      }
+      if (isValidPosition(backwardRight[0],backwardRight[1])) {
+        if (chessBoard[backwardRight[0]][backwardRight[1]]) {
+          const nextCol = getColor([backwardRight[0],backwardRight[1]])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([backwardRight[0],backwardRight[1]])
+          }
+        } else {
+          possibleMoves.push([backwardRight[0],backwardRight[1]])
+        }
+      }
+      if (isValidPosition(forward,col)) {
+        if (chessBoard[forward][col]) {
+          const nextCol = getColor([forward,col])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([forward,col])
+          }
+        } else {
+          possibleMoves.push([forward,col])
+        }
+      }
+      if (isValidPosition(backward,col)) {
+        if (chessBoard[backward][col]) {
+          const nextCol = getColor([backward,col])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([backward,col])
+          }
+        } else {
+          possibleMoves.push([backward,col])
+        }
+      }
+      if (isValidPosition(row,left)) {
+        if (chessBoard[row][left]) {
+          const nextCol = getColor([row,left])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([row,left])
+          }
+        } else {
+          possibleMoves.push([row,left])
+        }
+      }
+      if (isValidPosition(row,right)) {
+        if (chessBoard[row][right]) {
+          const nextCol = getColor([row,right])
+          if (nextCol != pieceColor) {
+            possibleMoves.push([row,right])
+          }
+        } else {
+          possibleMoves.push([row,right])
+        }
+      }
     }
     setLegalMove(possibleMoves)
     selectedPieceCopy.push([pieceType,[row,col]])
