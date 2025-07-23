@@ -115,41 +115,37 @@ function App() {
 
   const getLegalMoves = (pieceColor,pieceType,row,col) => {
     const directionMultiplier = pieceColor == "white" ? -1 : 1
+    const possibleMoves = []
+    const selectedPieceCopy = [...selectedPiece]
     if (pieceType == "pawn") {
       let movesDone = chessBoard[row][col][1]
-      let newCords = []
       const forward1 = [row+1*directionMultiplier,col]
       const forward2 = [row+2*directionMultiplier,col]
       const diagonalRight = [row+1*directionMultiplier,col+1]
       const diagonalLeft = [row+1*directionMultiplier,col-1]
       if (movesDone == 0) {
         if (!(chessBoard[forward1[0]][forward1[1]])) {
-          newCords.push(forward1)
+          possibleMoves.push(forward1)
           if (!(chessBoard[forward2[0]][forward2[1]])) {
-            newCords.push(forward2)
+            possibleMoves.push(forward2)
           }
         }
       } else if (movesDone > 0) {
           if (!(chessBoard[forward1[0]][forward1[1]])) {
-            newCords.push(forward1)
+            possibleMoves.push(forward1)
           }
       } if (chessBoard[diagonalRight[0]][diagonalRight[1]]) {
         const secondPieceColor = getColor([diagonalRight[0],diagonalRight[1]])
         if (secondPieceColor != pieceColor) {
-          newCords.push(diagonalRight)
+          possibleMoves.push(diagonalRight)
         }
       } if (chessBoard[diagonalLeft[0]][diagonalLeft[1]]) {
         const secondPieceColor = getColor([diagonalLeft[0],diagonalLeft[1]])
         if (secondPieceColor != pieceColor) {
-          newCords.push(diagonalLeft)
+          possibleMoves.push(diagonalLeft)
         }
       }
-      setLegalMove(newCords)
-      const selectedPieceCopy = [...selectedPiece]
-      selectedPieceCopy.push([pieceType,[row,col]])
-      setSelectedPiece(selectedPieceCopy)
     } else if (pieceType == "rook") {
-      const possibleMoves = []
       const forward = row-1
       const backward = row + 1
       const left = col - 1
@@ -206,11 +202,111 @@ function App() {
           possibleMoves.push([row,i])
         }
       }
-      setLegalMove(possibleMoves)
-      const selectedPieceCopy = [...selectedPiece]
-      selectedPieceCopy.push([pieceType,[row,col]])
-      setSelectedPiece(selectedPieceCopy)
-    }
+    } else if (pieceType == "knight") {
+        const forwardRow2 = row + 2 * directionMultiplier;
+        const backwardRow2 = row - 2 * directionMultiplier;
+        const forwardRow1 = row + 1 * directionMultiplier;
+        const backwardRow1 = row - 1 * directionMultiplier;
+        const leftCol1 = col - 1;
+        const leftCol2 = col - 2;
+        const rightCol1 = col + 1;
+        const rightCol2 = col + 2;
+
+        function isValidPosition(r, c) {
+          return r >= 0 && r < 8 && c >= 0 && c < 8;
+        }
+
+        if (isValidPosition(forwardRow2, leftCol1)) {
+          if (chessBoard[forwardRow2][leftCol1]) {
+            const nextCol = getColor([forwardRow2, leftCol1]);
+            if (nextCol != pieceColor) {
+              possibleMoves.push([forwardRow2, leftCol1]);
+            }
+          } else {
+            possibleMoves.push([forwardRow2, leftCol1]);
+          }
+        }
+
+        if (isValidPosition(forwardRow2, rightCol1)) {
+          if (chessBoard[forwardRow2][rightCol1]) {
+            const nextCol = getColor([forwardRow2, rightCol1]);
+            if (nextCol != pieceColor) {
+              possibleMoves.push([forwardRow2, rightCol1]);
+            }
+          } else {
+            possibleMoves.push([forwardRow2, rightCol1]);
+          }
+        }
+
+        if (isValidPosition(backwardRow2, leftCol1)) {
+          if (chessBoard[backwardRow2][leftCol1]) {
+            const nextCol = getColor([backwardRow2, leftCol1]);
+            if (nextCol != pieceColor) {
+              possibleMoves.push([backwardRow2, leftCol1]);
+            }
+          } else {
+            possibleMoves.push([backwardRow2, leftCol1]);
+          }
+        }
+
+        if (isValidPosition(backwardRow2, rightCol1)) {
+          if (chessBoard[backwardRow2][rightCol1]) {
+            const nextCol = getColor([backwardRow2, rightCol1]);
+            if (nextCol != pieceColor) {
+              possibleMoves.push([backwardRow2, rightCol1]);
+            }
+          } else {
+            possibleMoves.push([backwardRow2, rightCol1]);
+          }
+        }
+
+        if (isValidPosition(forwardRow1, leftCol2)) {
+          if (chessBoard[forwardRow1][leftCol2]) {
+            const nextCol = getColor([forwardRow1, leftCol2]);
+            if (nextCol != pieceColor) {
+              possibleMoves.push([forwardRow1, leftCol2]);
+            }
+          } else {
+            possibleMoves.push([forwardRow1, leftCol2]);
+          }
+        }
+
+        if (isValidPosition(forwardRow1, rightCol2)) {
+          if (chessBoard[forwardRow1][rightCol2]) {
+            const nextCol = getColor([forwardRow1, rightCol2]);
+            if (nextCol != pieceColor) {
+              possibleMoves.push([forwardRow1, rightCol2]);
+            }
+          } else {
+            possibleMoves.push([forwardRow1, rightCol2]);
+          }
+        }
+
+        if (isValidPosition(backwardRow1, leftCol2)) {
+          if (chessBoard[backwardRow1][leftCol2]) {
+            const nextCol = getColor([backwardRow1, leftCol2]);
+            if (nextCol != pieceColor) {
+              possibleMoves.push([backwardRow1, leftCol2]);
+            }
+          } else {
+            possibleMoves.push([backwardRow1, leftCol2]);
+          }
+        }
+
+        if (isValidPosition(backwardRow1, rightCol2)) {
+          if (chessBoard[backwardRow1][rightCol2]) {
+            const nextCol = getColor([backwardRow1, rightCol2]);
+            if (nextCol != pieceColor) {
+              possibleMoves.push([backwardRow1, rightCol2]);
+            }
+          } else {
+            possibleMoves.push([backwardRow1, rightCol2]);
+          }
+        }
+      }
+    setLegalMove(possibleMoves)
+    selectedPieceCopy.push([pieceType,[row,col]])
+    setSelectedPiece(selectedPieceCopy)
   }
 
   const pieceClick = (key) => {
