@@ -97,6 +97,7 @@ function App() {
   const [whitePieces,setWhitePieces] = useState([])
   const [blackPieces,setBlackPieces] = useState([])
   const [turn,setTurn] = useState("white")
+  const [secondPiece,setSecondPiece] = useState([])
 
   useEffect(()=>{
     const boardCopy = chessBoard.map(row => [...row])
@@ -580,8 +581,13 @@ function App() {
       }
     }
     setLegalMove(possibleMoves)
-    selectedPieceCopy.push([pieceType,[row,col]])
-    setSelectedPiece(selectedPieceCopy)
+    if (secondPiece.length == 0) {
+      setSelectedPiece([pieceType,[row,col]])
+    }else {
+      setSecondPiece(selectedPiece)
+      setSelectedPiece([pieceType,[row,col]])
+    }
+    console.log("selected",selectedPiece,"second",secondPiece)
   }
 
   const pieceClick = (key) => {
@@ -593,7 +599,7 @@ function App() {
 
     if (selectedPiece.length !== 0) {
       if (isLegal(row, col)) {
-        const [pieceType, [fromRow, fromCol]] = selectedPiece[0];
+        const [pieceType, [fromRow, fromCol]] = selectedPiece;
         const selectedColor = getColor([fromRow, fromCol]);
         const destinationPiece = chessBoard[row][col];
 
