@@ -98,11 +98,23 @@ function App() {
   const [blackPieces,setBlackPieces] = useState([])
   const [turn,setTurn] = useState("white")
   const [secondPiece,setSecondPiece] = useState([])
+  const [winner,setWinner] = useState("")
 
   useEffect(()=>{
     const boardCopy = chessBoard.map(row => [...row])
     setChessBoard(populateInitialBoard(boardCopy))
   },[])
+
+  useEffect(() => {
+  const blackHasKing = blackPieces.some(p => p.props.className.includes("king"));
+  const whiteHasKing = whitePieces.some(p => p.props.className.includes("king"));
+
+  if (blackHasKing) {
+    setWinner("White");
+  } else if (whiteHasKing) {
+    setWinner("Black");
+  }
+}, [blackPieces, whitePieces]);
 
   const getColor = (coords) => {
     const color = chessBoard[coords[0]][coords[1]][0].props.className.slice(0,5)
@@ -121,7 +133,6 @@ function App() {
   const getLegalMoves = (pieceColor,pieceType,row,col) => {
     const directionMultiplier = pieceColor == "white" ? -1 : 1
     const possibleMoves = []
-    const selectedPieceCopy = [...selectedPiece]
     if (pieceType == "pawn") {
       let movesDone = chessBoard[row][col][1]
       const forward1 = [row+1*directionMultiplier,col]
@@ -587,7 +598,6 @@ function App() {
       setSecondPiece(selectedPiece)
       setSelectedPiece([pieceType,[row,col]])
     }
-    console.log("selected",selectedPiece,"second",secondPiece)
   }
 
   const pieceClick = (key) => {
@@ -636,7 +646,7 @@ function App() {
     if (chessBoard[row][col]) {
       const pieceColor = getColor([row, col]);
       const pieceType = getType([row, col]);
-      if (pieceColor === turn) {
+      if (pieceColor === turn && !(winner)) {
         getLegalMoves(pieceColor, pieceType, row, col);
       }
     }
@@ -648,38 +658,40 @@ function App() {
     return exists
   }
 
-
   return (
-    <div className="flex justify-evenly items-center min-h-screen gap-6 bg-black">
-      <ul className="whitePieces border-2 border-black grid grid-cols-2 grid-rows-8 w-80 h-230 bg-yellow-200 place-items-center rounded-xl">
-        {whitePieces.map((piece, pieceIndex) => (
-          <li key={pieceIndex} className="w-30 flex items-center justify-center">{piece}</li>
-        ))}
-      </ul>
-      <ul className="chessBox border-8 border-white w-250 h-230 grid grid-cols-8 grid-rows-8 rounded-xl">
-        {chessBoard.map((chessRow, rowIndex) => (
-          chessRow.map((cell, colIndex) => (
-            <li
-              key={`r${rowIndex}c${colIndex}`}
-              className={`w-full h-full flex items-center justify-center border ${
-                isLegal(rowIndex, colIndex)
-                  ? chessBoard[rowIndex][colIndex] ? "bg-red-600" : "bg-white"
-                  : (colIndex + rowIndex) % 2 === 0
-                  ? "bg-yellow-200"
-                  : "bg-yellow-800"
-              }`}
-              onClick={() => pieceClick(`${rowIndex}-${colIndex}`)}
-            >
-              {cell?cell[0]:cell}
-            </li>
-          ))
-        ))}
-      </ul>
-      <ul className="blackPieces border-2 border-black grid grid-cols-2 grid-rows-8 w-80 h-230 rounded-xl bg-yellow-800 place-items-center">
-        {blackPieces.map((piece, pieceIndex) => (
-          <li key={pieceIndex} className="w-30 flex items-center justify-center">{piece}</li>
-        ))}
-      </ul>
+    <div>
+      <div className="flex justify-evenly items-center min-h-screen gap-6 bg-black">
+        <ul className="whitePieces border-2 border-black grid grid-cols-2 grid-rows-8 w-80 h-230 bg-yellow-200 place-items-center rounded-xl">
+          {whitePieces.map((piece, pieceIndex) => (
+            <li key={pieceIndex} className="w-30 flex items-center justify-center">{piece}</li>
+          ))}
+        </ul>
+        <ul className="chessBox border-8 border-white w-250 h-230 grid grid-cols-8 grid-rows-8 rounded-xl">
+          {chessBoard.map((chessRow, rowIndex) => (
+            chessRow.map((cell, colIndex) => (
+              <li
+                key={`r${rowIndex}c${colIndex}`}
+                className={`w-full h-full flex items-center justify-center border ${
+                  isLegal(rowIndex, colIndex)
+                    ? chessBoard[rowIndex][colIndex] ? "bg-red-600" : "bg-white"
+                    : (colIndex + rowIndex) % 2 === 0
+                    ? "bg-yellow-200"
+                    : "bg-yellow-800"
+                }`}
+                onClick={() => pieceClick(`${rowIndex}-${colIndex}`)}
+              >
+                {cell?cell[0]:cell}
+              </li>
+            ))
+          ))}
+        </ul>
+        <ul className="blackPieces border-2 border-black grid grid-cols-2 grid-rows-8 w-80 h-230 rounded-xl bg-yellow-800 place-items-center">
+          {blackPieces.map((piece, pieceIndex) => (
+            <li key={pieceIndex} className="w-30 flex items-center justify-center">{piece}</li>
+          ))}
+        </ul>
+      </div>
+      <p className={`text-2xl text-red-600 ${winner?"absolute":"none"} bottom-1/2 p-10 bg-black w-full flex justify-center`}>{winner} Wins</p>
     </div>
   )
 }
