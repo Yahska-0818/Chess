@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+
 import { pieces } from "./pieces";
 
 const populateInitialBoard = (boardMatrix) => {
@@ -57,13 +58,27 @@ function App() {
   }
 
   const getType = (coords) => {
-    const type = chessBoard[coords[0]][coords[1]][0].props.className.slice(6, -12)
-    return type
+    const className = chessBoard[coords[0]][coords[1]][0].props.className;
+    const type = className.split(' ')[0].split('-')[1];
+    return type;
   }
 
   function isValidPosition(r, c) {
     return r >= 0 && r < 8 && c >= 0 && c < 8;
   }
+
+  const resetGame = () => {
+    const newBoard = Array.from({ length: 8 }, () => Array(8).fill());
+    setChessBoard(populateInitialBoard(newBoard));
+    setLegalMove([]);
+    setSelectedPiece([]);
+    setWhitePieces([]);
+    setBlackPieces([]);
+    setTurn("white");
+    setWinner("");
+    setEnPassantTarget(null);
+    setPromotionData(null);
+  };
 
   const ROOK_DIRECTIONS = [
     [-1, 0],
@@ -208,7 +223,7 @@ function App() {
             !chessBoard[row][col + 2] &&
             rookKingside &&
             getType([row, col + 3]) === 'rook' &&
-            rookKingside[1] === 0 
+            rookKingside[1] === 0
           ) {
             possibleMoves.push([row, col + 2]);
           }
@@ -262,6 +277,7 @@ function App() {
         const selectedColor = getColor([fromRow, fromCol]);
         const directionMultiplier = selectedColor === "white" ? -1 : 1;
         let isEnPassant = false;
+        let isKingCapture = false;
 
         if (pieceType === "pawn" && enPassantTarget &&
           row === enPassantTarget[0] && col === enPassantTarget[1]) {
@@ -282,10 +298,14 @@ function App() {
             boardCopy[capturedPawnRow][col] = "";
           }
         }
+
         const destinationPiece = chessBoard[row][col];
         if (destinationPiece && !isEnPassant) {
           const targetColor = getColor([row, col]);
           if (selectedColor !== targetColor) {
+            if (getType([row, col]) === 'king') {
+              isKingCapture = true;
+            }
             if (targetColor === "white") {
               whitePiecesCopy.push(destinationPiece[0]);
               setWhitePieces(whitePiecesCopy);
@@ -315,7 +335,7 @@ function App() {
           }
         }
 
-        if (pieceType === 'pawn' && (row === 0 || row === 7)) {
+        if (pieceType === 'pawn' && (row === 0 || row === 7) && !isKingCapture) {
           setPromotionData({ color: selectedColor, row, col });
           setChessBoard(boardCopy);
           setLegalMove([]);
@@ -323,12 +343,10 @@ function App() {
           return;
         }
 
-
         setChessBoard(boardCopy);
         setLegalMove([]);
         setSelectedPiece([]);
         setTurn(selectedColor === "white" ? "black" : "white");
-
 
         if (pieceType === "pawn" && Math.abs(fromRow - row) === 2) {
           setEnPassantTarget([fromRow + (row - fromRow) / 2, fromCol]);
@@ -342,7 +360,7 @@ function App() {
       }
     }
 
-    if (chessBoard[row][col] && !promotionData) { 
+    if (chessBoard[row][col] && !promotionData) {
       const pieceColor = getColor([row, col]);
       const pieceType = getType([row, col]);
 
@@ -360,72 +378,106 @@ function App() {
     return exists
   }
 
+  const promotionPieces = ['queen', 'rook', 'bishop', 'knight'];
+
   return (
-    <div className="relative">
+    <div className="relative min-h-screen bg-neutral-900">
       {promotionData && (
-        <div className="absolute inset-0 bg-black bg-opacity-75 flex justify-center items-center z-10">
-          <div className="bg-white p-6 rounded-lg flex flex-col items-center gap-3">
-            <h3 className="text-xl font-bold">Promote Pawn to:</h3>
-            <div className="flex gap-2">
-              <button
-                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
-                onClick={() => handlePromotion('queen')}
-              >
-                Queen
-              </button>
-              <button
-                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
-                onClick={() => handlePromotion('rook')}
-              >
-                Rook
-              </button>
-              <button
-                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
-                onClick={() => handlePromotion('bishop')}
-              >
-                Bishop
-              </button>
-              <button
-                className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
-                onClick={() => handlePromotion('knight')}
-              >
-                Knight
-              </button>
+        <div className="absolute inset-0 bg-black bg-opacity-80 flex justify-center items-center z-20">
+          <div className="bg-neutral-800 p-6 rounded-lg flex flex-col items-center gap-4 text-white shadow-2xl">
+            <h3 className="text-2xl font-bold">Promote to:</h3>
+            <div className="flex gap-4">
+              {promotionPieces.map((pieceName) => (
+                <button
+                  key={pieceName}
+                  className="w-20 h-20 p-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg flex items-center justify-center transition-colors"
+                  onClick={() => handlePromotion(pieceName)}
+                >
+                  {React.cloneElement(pieces[promotionData.color][pieceName].icon, {
+                    className: `w-full h-full`,
+                  })}
+                </button>
+              ))}
             </div>
           </div>
         </div>
       )}
-      <div className="flex justify-evenly items-center min-h-screen gap-6 bg-black">
-        <ul className="whitePieces border-2 border-black grid grid-cols-2 grid-rows-8 w-80 h-230 bg-yellow-200 place-items-center rounded-xl">
-          {whitePieces.map((piece, pieceIndex) => (
-            <li key={pieceIndex} className="w-30 flex items-center justify-center">{piece}</li>
-          ))}
-        </ul>
-        <ul className="chessBox border-8 border-white w-250 h-230 grid grid-cols-8 grid-rows-8 rounded-xl">
+
+      {winner && (
+        <div className="absolute inset-0 bg-black bg-opacity-80 flex justify-center items-center z-10">
+          <div className="bg-neutral-800 p-10 rounded-lg flex flex-col items-center gap-6 text-white shadow-2xl">
+            <h3 className="text-4xl font-bold">{winner} Wins!</h3>
+            <button
+              onClick={resetGame}
+              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg transition-colors"
+            >
+              Restart Game
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-center items-center min-h-screen gap-8 p-8">
+        
+        <div className="w-40 h-[80vh] max-h-[800px] bg-neutral-800 p-4 rounded-lg shadow-lg flex flex-col items-center">
+          <h3 className="text-lg font-bold text-neutral-400 mb-4">Captured</h3>
+          <ul className="grid grid-cols-2 gap-2 w-full">
+            {whitePieces.map((piece, pieceIndex) => (
+              <li key={pieceIndex} className="w-full h-16 flex items-center justify-center">{piece}</li>
+            ))}
+          </ul>
+        </div>
+
+        <ul className="w-[80vh] h-[80vh] max-w-[800px] max-h-[800px] grid grid-cols-8 grid-rows-8 shadow-2xl overflow-hidden rounded-lg">
           {chessBoard.map((chessRow, rowIndex) => (
-            chessRow.map((cell, colIndex) => (
-              <li
-                key={`r${rowIndex}c${colIndex}`}
-                className={`w-full h-full flex items-center justify-center border ${isLegal(rowIndex, colIndex)
-                    ? chessBoard[rowIndex][colIndex] ? "bg-red-600" : "bg-white"
-                    : (colIndex + rowIndex) % 2 === 0
-                      ? "bg-yellow-200"
-                      : "bg-yellow-800"
-                  }`}
-                onClick={() => pieceClick(`${rowIndex}-${colIndex}`)}
-              >
-                {cell ? cell[0] : cell}
-              </li>
-            ))
+            chessRow.map((cell, colIndex) => {
+              const isSelected = selectedPiece[1] && selectedPiece[1][0] === rowIndex && selectedPiece[1][1] === colIndex;
+              const isMoveLegal = isLegal(rowIndex, colIndex);
+
+              return (
+                <li
+                  key={`r${rowIndex}c${colIndex}`}
+                  className={`w-full h-full flex items-center justify-center relative cursor-pointer
+                    ${(colIndex + rowIndex) % 2 === 0 ? "bg-stone-100" : "bg-green-700"}
+                    ${isSelected ? "bg-yellow-300" : ""}
+                  `}
+                  onClick={() => pieceClick(`${rowIndex}-${colIndex}`)}
+                >
+                  {cell ? cell[0] : cell}
+
+                  {isMoveLegal && (
+                    <>
+                      {chessBoard[rowIndex][colIndex] ? (
+                        <div className="absolute inset-0.5 border-4 border-red-500 rounded-md" />
+                      ) : (
+                        <div className="absolute w-1/3 h-1/3 bg-black bg-opacity-20 rounded-full" />
+                      )}
+                    </>
+                  )}
+                </li>
+              );
+            })
           ))}
         </ul>
-        <ul className="blackPieces border-2 border-black grid grid-cols-2 grid-rows-8 w-80 h-230 rounded-xl bg-yellow-800 place-items-center">
-          {blackPieces.map((piece, pieceIndex) => (
-            <li key={pieceIndex} className="w-30 flex items-center justify-center">{piece}</li>
-          ))}
-        </ul>
+
+        <div className="w-40 h-[80vh] max-h-[800px] bg-neutral-800 p-4 rounded-lg shadow-lg flex flex-col items-center">
+          <h3 className="text-lg font-bold text-neutral-400 mb-4">Captured</h3>
+          <ul className="grid grid-cols-2 gap-2 w-full">
+            {blackPieces.map((piece, pieceIndex) => (
+              <li key={pieceIndex} className="w-full h-16 flex items-center justify-center">{piece}</li>
+            ))}
+          </ul>
+        </div>
       </div>
-      <p className={`text-2xl text-red-600 ${winner ? "absolute" : "none"} bottom-1/2 p-10 bg-black w-full flex justify-center`}>{winner} Wins</p>
+      
+      {!winner && !promotionData && (
+        <button
+          onClick={resetGame}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition-colors z-10"
+        >
+          Reset Game
+        </button>
+      )}
     </div>
   )
 }
