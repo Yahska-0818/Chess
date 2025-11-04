@@ -1,33 +1,34 @@
 {
   "name": "chess",
-  "homepage": "https://yahska-0818.github.io/Chess/",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "1.0.0",
+  "description": "chess game",
+  "homepage": "https://github.com/Yahska-0818/Chess#readme",
+  "bugs": {
+    "url": "https://github.com/Yahska-0818/Chess/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yahska-0818/Chess.git"
+  },
+  "license": "ISC",
+  "author": "Akshay",
+  "type": "commonjs",
+  "main": "index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development node --watch index.js",
+    "test": "NODE_ENV=test node --test",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "build:ui": "rm -rf dist && cd ../notes && npm run build && cp -r dist ../notes-backend",
+    "deploy:full": "npm run build:ui && git add . && git commit -m newDeployBuild && git push"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.11",
-    "gh-pages": "^6.3.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "tailwindcss": "^4.1.11"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.30.1",
-    "@types/react": "^19.1.8",
-    "@types/react-dom": "^19.1.6",
-    "@vitejs/plugin-react": "^4.6.0",
-    "eslint": "^9.30.1",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.3.0",
-    "vite": "^7.0.4"
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   }
 }
