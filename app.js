@@ -21,9 +21,6 @@ app.use(middleware.requestLogger)
 app.use(express.json())
 
 app.use('/api/game', gameRouter)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
