@@ -12,7 +12,7 @@
   },
   "license": "ISC",
   "author": "Akshay",
-  "type": "module",
+  "type": "commonjs",
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=production node index.js",
