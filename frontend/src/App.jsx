@@ -1,83 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
+import gameService from './services/gameService';
+import ChessBoard from "./components/Chessboard";
+import MoveHistory from "./components/MoveHistoy";
 import { pieceIcons } from "./pieces";
-import gameService from "./services/gameService";
+import CapturedPieces from "./components/CapturedPieces";
 
-function ChessBoard({ 
-  board, 
-  legalMoves, 
-  selectedPiece, 
-  inCheck, 
-  onSquareClick 
-}) {
-  const isLegal = (row, col) => {
-    return legalMoves.some(([r, c]) => r === row && c === col);
-  };
-
-  return (
-    <ul className="w-[80vh] h-[80vh] max-w-[800px] max-h-[800px] grid grid-cols-8 grid-rows-8 shadow-2xl overflow-hidden rounded-lg">
-      {board.map((chessRow, rowIndex) => (
-        chessRow.map((cell, colIndex) => {
-          const isSelected = selectedPiece && selectedPiece[0] === rowIndex && selectedPiece[1] === colIndex;
-          const isMoveLegal = isLegal(rowIndex, colIndex);
-          const isChecked = inCheck && inCheck[0] === rowIndex && inCheck[1] === colIndex;
-
-          let pieceIcon = null;
-          if (cell) {
-            const key = `${cell.color}_${cell.type}`;
-            pieceIcon = pieceIcons[key];
-          }
-
-          return (
-            <li
-              key={`r${rowIndex}c${colIndex}`}
-              className={`w-full h-full flex items-center justify-center relative cursor-pointer
-                ${(colIndex + rowIndex) % 2 === 0 ? "bg-stone-100" : "bg-green-700"}
-                ${isSelected ? "bg-yellow-300" : ""}
-                ${isChecked ? "bg-red-500" : ""}
-              `}
-              onClick={() => onSquareClick(rowIndex, colIndex)}
-            >
-              {pieceIcon}
-
-              {isMoveLegal && (
-                <>
-                  {cell ? (
-                    <div className="absolute inset-0.5 border-4 border-red-500 rounded-md" />
-                  ) : (
-                    <div className="absolute w-1/3 h-1/3 bg-black bg-opacity-20 rounded-full" />
-                  )}
-                </>
-              )}
-            </li>
-          );
-        })
-      ))}
-    </ul>
-  );
-}
-
-function CapturedPieces({ pieces }) {
-  return (
-    <ul className="grid grid-cols-2 gap-2 w-full">
-      {pieces.map((piece, index) => (
-        <li key={index} className="w-full h-16 flex items-center justify-center">
-          {pieceIcons[`${piece.color}_${piece.type}`]}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function App() {
+const App = () => {
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [legalMoves, setLegalMoves] = useState([]);
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [promotionData, setPromotionData] = useState(null);
-  
+  const [currentMoveIndex, setCurrentMoveIndex] = useState(null);
+
   useEffect(() => {
+    let mounted = true;
     gameService.createGame()
       .then(initialGameState => {
+        if (!mounted) return;
         setGame(initialGameState);
         setLoading(false);
       })
@@ -85,6 +26,8 @@ function App() {
         console.error("Error creating game:", err);
         setLoading(false);
       });
+
+    return () => { mounted = false; };
   }, []);
 
   const resetGame = async () => {
@@ -92,22 +35,24 @@ function App() {
     setLegalMoves([]);
     setSelectedPiece(null);
     setPromotionData(null);
+    setCurrentMoveIndex(null);
     const newGame = await gameService.createGame();
     setGame(newGame);
     setLoading(false);
   };
 
   const handleSquareClick = async (row, col) => {
+    if (!game) return;
     if (game.winner || promotionData) return;
 
     try {
       if (selectedPiece) {
         const [fromRow, fromCol] = selectedPiece;
         const isLegal = legalMoves.some(([r, c]) => r === row && c === col);
-        
+
         if (isLegal) {
           const newGameState = await gameService.makeMove(game._id, [fromRow, fromCol], [row, col]);
-          
+
           if (newGameState.status === 'awaiting_promotion') {
             setPromotionData(newGameState.promotionData);
             setGame(newGameState);
@@ -117,6 +62,7 @@ function App() {
 
           setSelectedPiece(null);
           setLegalMoves([]);
+          setCurrentMoveIndex(newGameState.moveHistory.length - 1);
 
         } else if (fromRow === row && fromCol === col) {
           setSelectedPiece(null);
@@ -148,37 +94,111 @@ function App() {
   };
 
   const handlePromotion = async (pieceName) => {
-    if (!promotionData) return;
-    
+    if (!promotionData || !game) return;
+
     try {
       const newGameState = await gameService.promotePawn(
-        game._id, 
+        game._id,
         promotionData.from,
-        promotionData.to, 
+        promotionData.to,
         pieceName
       );
       setGame(newGameState);
       setPromotionData(null);
+      setCurrentMoveIndex(newGameState.moveHistory.length - 1);
     } catch (error) {
       console.error("Error promoting pawn:", error);
     }
   };
 
+  const handleJumpToMove = async (moveIndex) => {
+    if (!game) return;
+
+    try {
+      if (typeof gameService.getGameSnapshotAtMove === 'function') {
+        const snapshot = await gameService.getGameSnapshotAtMove(game._id, moveIndex);
+        if (snapshot) {
+          setGame(snapshot);
+          setCurrentMoveIndex(moveIndex);
+          setSelectedPiece(null);
+          setLegalMoves([]);
+          return;
+        }
+      }
+
+      setCurrentMoveIndex(moveIndex);
+      alert('Jump not supported by server — only highlighting the move locally.');
+    } catch (err) {
+      console.error('Error jumping to move:', err);
+    }
+  };
+
   if (loading) {
-    return <div className="relative min-h-screen bg-neutral-900 text-white flex justify-center items-center text-2xl">Loading Game...</div>;
+    return <div className="relative min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-white flex justify-center items-center text-2xl">Loading Game...</div>;
   }
-  
+
   if (!game) {
-    return <div className="relative min-h-screen bg-neutral-900 text-white flex justify-center items-center text-2xl">Error loading game.</div>;
+    return <div className="relative min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-white flex justify-center items-center text-2xl">Error loading game.</div>;
   }
 
   const promotionPieces = ['queen', 'rook', 'bishop', 'knight'];
 
   return (
-    <div className="relative min-h-screen bg-neutral-900">
+    <div className="min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-neutral-100 p-6">
+      <header className="max-w-7xl mx-auto flex items-center justify-between mb-6">
+        <div className="flex items-center gap-4">
+          <div className="text-2xl font-bold">ChessLab</div>
+          <div className="text-sm text-neutral-400">Play • Analyze • Learn</div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="text-sm text-neutral-300">Turn: <span className="font-semibold capitalize ml-1">{game.turn}</span></div>
+          <button onClick={resetGame} className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-sm">New Game</button>
+        </div>
+      </header>
+
+
+      <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
+
+        <aside className="col-span-2 flex flex-col gap-4">
+          <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl shadow-md ring-1 ring-black/20 flex flex-col items-center gap-3">
+            <h3 className="text-sm font-semibold text-neutral-200">Captured (W)</h3>
+            <CapturedPieces pieces={game.captured.white} />
+          </div>
+
+          <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl shadow-md ring-1 ring-black/20">
+            <h4 className="text-sm font-semibold text-neutral-200 mb-2">Game Info</h4>
+            <div className="text-xs text-neutral-400">Status: <span className="capitalize">{game.status}</span></div>
+            <div className="text-xs text-neutral-400">Winner: <span className="capitalize">{game.winner || '—'}</span></div>
+            <div className="text-xs text-neutral-400">Moves: {game.moveHistory.length}</div>
+          </div>
+        </aside>
+        <section className="col-span-8 flex items-center justify-center">
+          <div className="p-6 bg-gradient-to-b from-white/5 to-white/3 rounded-3xl shadow-2xl flex items-center justify-center">
+            <ChessBoard
+              board={game.board}
+              legalMoves={legalMoves}
+              selectedPiece={selectedPiece}
+              inCheck={game.inCheck}
+              onSquareClick={handleSquareClick}
+            />
+          </div>
+        </section>
+
+        <aside className="col-span-2 flex flex-col gap-4">
+          <MoveHistory moveHistory={game.moveHistory} currentMoveIndex={currentMoveIndex} onJumpToMove={handleJumpToMove} />
+
+          <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl shadow-md ring-1 ring-black/20 flex flex-col items-center gap-3">
+            <h3 className="text-sm font-semibold text-neutral-200">Captured (B)</h3>
+            <CapturedPieces pieces={game.captured.black} />
+          </div>
+        </aside>
+
+      </main>
+
       {promotionData && (
-        <div className="absolute inset-0 bg-black bg-opacity-80 flex justify-center items-center z-20">
-          <div className="bg-neutral-800 p-6 rounded-lg flex flex-col items-center gap-4 text-white shadow-2xl">
+        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-30">
+          <div className="bg-neutral-800 p-6 rounded-2xl flex flex-col items-center gap-4 shadow-2xl w-fit">
             <h3 className="text-2xl font-bold">Promote to:</h3>
             <div className="flex gap-4">
               {promotionPieces.map((pieceName) => (
@@ -196,52 +216,17 @@ function App() {
           </div>
         </div>
       )}
-
       {game.winner && (
-        <div className="absolute inset-0 bg-black bg-opacity-80 flex justify-center items-center z-10">
-          <div className="bg-neutral-800 p-10 rounded-lg flex flex-col items-center gap-6 text-white shadow-2xl">
-            <h3 className="text-4xl font-bold">{game.winner === 'Stalemate' ? 'Stalemate!' : `${game.winner.toUpperCase()} Wins!`}</h3>
-            <button
-              onClick={resetGame}
-              className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-lg transition-colors"
-            >
-              Restart Game
-            </button>
+        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-20">
+          <div className="bg-neutral-800 p-8 rounded-2xl flex flex-col items-center gap-6 shadow-2xl">
+            <h3 className="text-3xl font-bold">{game.winner === 'Stalemate' ? 'Stalemate' : `${game.winner.toUpperCase()} Wins`}</h3>
+            <button onClick={resetGame} className="px-6 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white">Restart</button>
           </div>
         </div>
       )}
 
-      <div className="flex justify-center items-center min-h-screen gap-8 p-8">
-        
-        <div className="w-40 h-[80vh] max-h-[800px] bg-neutral-800 p-4 rounded-lg shadow-lg flex flex-col items-center">
-          <h3 className="text-lg font-bold text-neutral-400 mb-4">Captured (W)</h3>
-          <CapturedPieces pieces={game.captured.white} />
-        </div>
-
-        <ChessBoard 
-          board={game.board}
-          legalMoves={legalMoves}
-          selectedPiece={selectedPiece}
-          inCheck={game.inCheck}
-          onSquareClick={handleSquareClick}
-        />
-
-        <div className="w-40 h-[80vh] max-h-[800px] bg-neutral-800 p-4 rounded-lg shadow-lg flex flex-col items-center">
-          <h3 className="text-lg font-bold text-neutral-400 mb-4">Captured (B)</h3>
-          <CapturedPieces pieces={game.captured.black} />
-        </div>
-      </div>
-      
-      {!game.winner && !promotionData && (
-        <button
-          onClick={resetGame}
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow-lg transition-colors z-10"
-        >
-          Reset Game
-        </button>
-      )}
     </div>
-  )
+  );
 }
 
-export default App;
+export default App
