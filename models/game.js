@@ -27,10 +27,6 @@ const pieceDefinitionSchema = new mongoose.Schema({
     required: true,
     enum: ['pawn', 'rook', 'knight', 'bishop', 'queen', 'king']
   },
-  iconSvg: {
-    type: String,
-    required: true
-  },
   startingPositions: {
     type: [positionSchema],
     required: true
@@ -80,8 +76,16 @@ const pieceSchema = new mongoose.Schema({
     default: false
   }
 });
+pieceSchema.index({ gameId: 1, "currentPosition.row": 1, "currentPosition.col": 1 });
 
 export const Piece = mongoose.model('Piece', pieceSchema);
+
+const moveSchema = new mongoose.Schema({
+  piece: { type: String, required: true },
+  from: { type: positionSchema, required: true },
+  to: { type: positionSchema, required: true },
+  notation: { type: String, required: true }
+}, { _id: false });
 
 const gameSchema = new mongoose.Schema({
   whitePlayerId: {
@@ -91,8 +95,7 @@ const gameSchema = new mongoose.Schema({
   },
   blackPlayerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
+    ref: 'User'
   },
   status: {
     type: String,
@@ -110,9 +113,13 @@ const gameSchema = new mongoose.Schema({
     default: null,
   },
   moveHistory: {
-    type: [String],
+    type: [moveSchema],
     default: [],
   },
 }, { timestamps: true });
+
+gameSchema.index({ whitePlayerId: 1 });
+gameSchema.index({ blackPlayerId: 1 });
+gameSchema.index({ status: 1 });
 
 export const Game = mongoose.model('Game', gameSchema);
