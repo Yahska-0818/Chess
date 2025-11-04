@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
+const gameRouter = require('./controllers/game')
 
 const app = express()
 
@@ -17,9 +18,10 @@ mongoose
     logger.error('error connection to MongoDB:', error.message)
   })
 
-app.use(express.static('dist'))
+app.use('/Chess', express.static('dist'))
 app.use(express.json())
 app.use(middleware.requestLogger)
+app.use('/api/game', gameRouter);
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)

@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose')
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
 });
-export const User = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
 
 const positionSchema = new mongoose.Schema({
   row: {
@@ -39,9 +39,20 @@ const pieceDefinitionSchema = new mongoose.Schema({
 
 pieceDefinitionSchema.index({ color: 1, type: 1 }, { unique: true });
 
-export const PieceDefinition = mongoose.model('PieceDefinition', pieceDefinitionSchema);
+const PieceDefinition = mongoose.model('PieceDefinition', pieceDefinitionSchema);
 
 const pieceSchema = new mongoose.Schema({
+  color: { type: String, required: true },
+  type: { type: String, required: true },
+  moveCounter: { type: Number, default: 0 }
+}, { _id: false });
+
+const capturedPieceSchema = new mongoose.Schema({
+  color: { type: String, required: true },
+  type: { type: String, required: true },
+}, { _id: false });
+
+const pieceSchemaV2 = new mongoose.Schema({
   gameId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Game',
@@ -76,9 +87,8 @@ const pieceSchema = new mongoose.Schema({
     default: false
   }
 });
-pieceSchema.index({ gameId: 1, "currentPosition.row": 1, "currentPosition.col": 1 });
-
-export const Piece = mongoose.model('Piece', pieceSchema);
+pieceSchemaV2.index({ gameId: 1, "currentPosition.row": 1, "currentPosition.col": 1 });
+const Piece = mongoose.model('Piece', pieceSchemaV2);
 
 const moveSchema = new mongoose.Schema({
   piece: { type: String, required: true },
@@ -99,8 +109,8 @@ const gameSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['waiting_for_opponent', 'in_progress', 'completed', 'aborted'],
-    default: 'waiting_for_opponent',
+    enum: ['waiting_for_opponent', 'in_progress', 'awaiting_promotion', 'completed', 'aborted'],
+    default: 'in_progress',
   },
   turn: {
     type: String,
@@ -109,17 +119,45 @@ const gameSchema = new mongoose.Schema({
   },
   winner: {
     type: String,
-    enum: [null, 'white', 'black', 'draw'],
+    enum: [null, 'white', 'black', 'Stalemate'],
     default: null,
   },
   moveHistory: {
     type: [moveSchema],
     default: [],
   },
+  board: {
+    type: [[mongoose.Schema.Types.Mixed]],
+    required: true
+  },
+  inCheck: {
+    type: [Number],
+    default: null
+  },
+  enPassantTarget: {
+    type: [Number],
+    default: null
+  },
+  captured: {
+    white: [capturedPieceSchema],
+    black: [capturedPieceSchema]
+  },
+  promotionData: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null
+  }
 }, { timestamps: true });
 
 gameSchema.index({ whitePlayerId: 1 });
 gameSchema.index({ blackPlayerId: 1 });
 gameSchema.index({ status: 1 });
 
-export const Game = mongoose.model('Game', gameSchema);
+const Game = mongoose.model('Game', gameSchema);
+
+module.exports = {
+  User,
+  PieceDefinition,
+  Piece,
+  Game
+};
+
