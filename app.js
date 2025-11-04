@@ -18,19 +18,10 @@ mongoose
 app.use(middleware.requestLogger)
 app.use(express.json())
 
+app.use('/api/game', gameRouter)
+
 const distPath = path.join(__dirname, 'dist')
 app.use('/', express.static(distPath, { index: 'index.html' }))
-
-app.get('/*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'), (err) => {
-    if (err) {
-      req.app.locals.logger && req.app.locals.logger.error('sendFile error', err)
-      res.status(500).send('Internal Server Error')
-    }
-  })
-})
-
-app.use('/api/game', gameRouter)
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
