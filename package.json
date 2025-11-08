@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "chess game",
   "homepage": "https://github.com/Yahska-0818/Chess#readme",
-  "bugs": {
-    "url": "https://github.com/Yahska-0818/Chess/issues"
-  },
+  "bugs": { "url": "https://github.com/Yahska-0818/Chess/issues" },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Yahska-0818/Chess.git"
@@ -14,12 +12,14 @@
   "author": "Akshay",
   "type": "commonjs",
   "main": "index.js",
+  "engines": { "node": "18.x" },
   "scripts": {
     "start": "NODE_ENV=production node index.js",
     "dev": "NODE_ENV=development node --watch index.js",
     "test": "NODE_ENV=test node --test",
     "lint": "eslint .",
-    "build:ui": "rm -rf dist && cd frontend && npm run build && cp -r dist ../",
+    "build:ui": "rm -rf dist && cd client && npm ci && npm run build && cp -a dist ../dist",
+    "postinstall": "npm run build:ui",
     "deploy:full": "npm run build:ui && git add . && git commit -m newDeployBuild && git push"
   },
   "dependencies": {
