@@ -20,8 +20,8 @@ const GameMode = ({ setGameType }) => {
         </h1>
 
         <div className="flex gap-8">
-          <Button text="Local" setGameType={setGameType}/>
-          <Button text="Multiplayer" setGameType={setGameType}/>
+          <Button text="Local" setOnClick={setGameType}/>
+          <Button text="Multiplayer" setOnClick={setGameType}/>
         </div>
       </div>
     </div>

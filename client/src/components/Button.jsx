@@ -1,4 +1,4 @@
-const Button = ({ text,setGameType }) => {
+const Button = ({ text,setOnClick }) => {
   return (
     <button className="
       relative overflow-hidden
@@ -11,7 +11,7 @@ const Button = ({ text,setGameType }) => {
       hover:-translate-y-0.5 active:translate-y-0
       backdrop-blur-sm
       hover:cursor-pointer
-    "  onClick={() => setGameType(text)} >
+    "  onClick={() => setOnClick(text)} >
       <span className="relative z-10">{text}</span>
     </button>
   );
