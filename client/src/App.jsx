@@ -5,6 +5,8 @@ import ChessBoard from "./components/Chessboard";
 import MoveHistory from "./components/MoveHistoy";
 import { pieceIcons } from "./pieces";
 import CapturedPieces from "./components/CapturedPieces";
+import GameMode from "./components/GameMode";
+import Multiplayer from "./components/Multiplayer";
 
 const App = () => {
   const [game, setGame] = useState(null);
@@ -13,22 +15,25 @@ const App = () => {
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [promotionData, setPromotionData] = useState(null);
   const [currentMoveIndex, setCurrentMoveIndex] = useState(null);
+  const [gameType,setGameType] = useState(null);
 
   useEffect(() => {
-    let mounted = true;
-    gameService.createGame()
-      .then(initialGameState => {
-        if (!mounted) return;
-        setGame(initialGameState);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error("Error creating game:", err);
-        setLoading(false);
-      });
+    if (gameType) {
+      let mounted = true
+      gameService.createGame()
+        .then(initialGameState => {
+          if (!mounted) return;
+          setGame(initialGameState);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Error creating game:", err);
+          setLoading(false);
+        });
 
-    return () => { mounted = false; };
-  }, []);
+      return () => { mounted = false; };
+    }
+  }, [gameType]);
 
   const resetGame = async () => {
     setLoading(true);
@@ -133,6 +138,14 @@ const App = () => {
     }
   };
 
+  if (!gameType) {
+  return <GameMode setGameType={setGameType}/>
+  }
+
+  if (gameType == 'Multiplayer') {
+    return <Multiplayer/>
+  }
+
   if (loading) {
     return <div className="relative min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-white flex justify-center items-center text-2xl">Loading Game...</div>;
   }
@@ -148,7 +161,6 @@ const App = () => {
       <header className="max-w-7xl mx-auto flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
           <div className="text-2xl font-bold">ChessLab</div>
-          <div className="text-sm text-neutral-400">Play • Analyze • Learn</div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -162,7 +174,7 @@ const App = () => {
 
         <aside className="col-span-2 flex flex-col gap-4">
           <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl shadow-md ring-1 ring-black/20 flex flex-col items-center gap-3">
-            <h3 className="text-sm font-semibold text-neutral-200">Captured (W)</h3>
+            <h3 className="text-sm font-semibold text-neutral-200">Captured (White)</h3>
             <CapturedPieces pieces={game.captured.white} />
           </div>
 
@@ -189,7 +201,7 @@ const App = () => {
           <MoveHistory moveHistory={game.moveHistory} currentMoveIndex={currentMoveIndex} onJumpToMove={handleJumpToMove} />
 
           <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl shadow-md ring-1 ring-black/20 flex flex-col items-center gap-3">
-            <h3 className="text-sm font-semibold text-neutral-200">Captured (B)</h3>
+            <h3 className="text-sm font-semibold text-neutral-200">Captured (Black)</h3>
             <CapturedPieces pieces={game.captured.black} />
           </div>
         </aside>
