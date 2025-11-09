@@ -117,6 +117,7 @@ function makeMovesCacheKey(gameId, board, row, col, turn, enPassant) {
 }
 
 gameRouter.post('/', async (request, response) => {
+  await Piece.deleteMany({})
   try {
     let whitePlayer = await User.findOne({ username: 'player1' }).lean();
     if (!whitePlayer) {
