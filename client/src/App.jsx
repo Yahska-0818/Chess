@@ -6,7 +6,7 @@ import Multiplayer from "./pages/Multiplayer";
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-neutral-100">
+      <div className="min-h-screen bg-linear-to-b from-neutral-900 to-neutral-800 text-neutral-100">
         <nav className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="text-2xl font-bold">ChessLab</Link>
           <div className="flex gap-3 text-sm">

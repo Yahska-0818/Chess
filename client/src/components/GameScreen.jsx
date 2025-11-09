@@ -22,13 +22,11 @@ export default function GameScreen(props) {
   return (
     <div className="min-h-screen bg-linear-to-b from-neutral-900 to-neutral-800 text-neutral-100 p-6">
       <header className="max-w-7xl mx-auto flex items-center justify-between mb-6">
-        <div className="text-2xl font-bold">ChessLab</div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           <div className="text-sm text-neutral-300">Turn: <span className="font-semibold capitalize ml-1">{game.turn}</span></div>
           <button onClick={resetGame} className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-sm">New Game</button>
         </div>
       </header>
-
       <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
         <aside className="col-span-2 flex flex-col gap-4">
           <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl shadow-md ring-1 ring-black/20 flex flex-col items-center gap-3">
