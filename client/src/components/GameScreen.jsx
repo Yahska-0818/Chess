@@ -11,16 +11,16 @@ export default function GameScreen(props) {
   } = props;
 
   if (loading) {
-    return <div className="relative min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-white flex justify-center items-center text-2xl">Loading Game...</div>;
+    return <div className="relative min-h-screen bg-linear-to-b from-neutral-900 to-neutral-800 text-white flex justify-center items-center text-2xl">Loading Game...</div>;
   }
   if (!game) {
-    return <div className="relative min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-white flex justify-center items-center text-2xl">Error loading game.</div>;
+    return <div className="relative min-h-screen bg-linear-to-b from-neutral-900 to-neutral-800 text-white flex justify-center items-center text-2xl">Error loading game.</div>;
   }
 
   const promotionPieces = ["queen", "rook", "bishop", "knight"];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-neutral-100 p-6">
+    <div className="min-h-screen bg-linear-to-b from-neutral-900 to-neutral-800 text-neutral-100 p-6">
       <header className="max-w-7xl mx-auto flex items-center justify-between mb-6">
         <div className="text-2xl font-bold">ChessLab</div>
         <div className="flex items-center gap-3">
@@ -45,7 +45,7 @@ export default function GameScreen(props) {
         </aside>
 
         <section className="col-span-8 flex items-center justify-center">
-          <div className="p-6 bg-gradient-to-b from-white/5 to-white/3 rounded-3xl shadow-2xl flex items-center justify-center">
+          <div className="p-6 bg-linear-to-b from-white/5 to-white/3 rounded-3xl shadow-2xl flex items-center justify-center">
             <ChessBoard
               board={game.board}
               legalMoves={legalMoves}

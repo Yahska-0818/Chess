@@ -56,7 +56,7 @@ const Multiplayer = () => {
                 {code}
               </span>
               <button
-                className="relative overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-neutral-50 via-neutral-100 to-neutral-200 text-neutral-800 font-medium tracking-wide px-8 py-4 shadow-sm hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 backdrop-blur-sm hover:cursor-pointer"
+                className="relative overflow-hidden rounded-2xl border border-amber-100 bg-linear-to-br from-neutral-50 via-neutral-100 to-neutral-200 text-neutral-800 font-medium tracking-wide px-8 py-4 shadow-sm hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 backdrop-blur-sm hover:cursor-pointer"
                 onClick={() => {
                   navigator.clipboard.writeText(code);
                   setCopy(true);
@@ -70,14 +70,14 @@ const Multiplayer = () => {
 
           <div className="flex gap-10 mt-4">
             <button
-              className="relative overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-neutral-50 via-neutral-100 to-neutral-200 text-neutral-800 font-medium tracking-wide px-10 py-5 min-w-40 shadow-sm hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 backdrop-blur-sm hover:cursor-pointer"
+              className="relative overflow-hidden rounded-2xl border border-amber-100 bg-linear-to-br from-neutral-50 via-neutral-100 to-neutral-200 text-neutral-800 font-medium tracking-wide px-10 py-5 min-w-40 shadow-sm hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 backdrop-blur-sm hover:cursor-pointer"
               onClick={() => setCode(getSecureCode())}
             >
               <span className="relative z-10">Regenerate</span>
             </button>
 
             <button
-              className="relative overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-neutral-50 via-neutral-100 to-neutral-200 text-neutral-800 font-medium tracking-wide px-10 py-5 min-w-40 shadow-sm hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 backdrop-blur-sm hover:cursor-pointer"
+              className="relative overflow-hidden rounded-2xl border border-amber-100 bg-linear-to-br from-neutral-50 via-neutral-100 to-neutral-200 text-neutral-800 font-medium tracking-wide px-10 py-5 min-w-40 shadow-sm hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 backdrop-blur-sm hover:cursor-pointer"
               onClick={() => setMode(null)}
             >
               <span className="relative z-10">Back</span>
@@ -105,7 +105,7 @@ const Multiplayer = () => {
               aria-label="Enter party code"
             />
             <button
-              className={`relative overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-neutral-50 via-neutral-100 to-neutral-200 text-neutral-800 font-medium tracking-wide px-10 py-5 min-w-40 shadow-sm hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 backdrop-blur-sm hover:cursor-pointer ${joining ? 'opacity-60 cursor-not-allowed' : ''}`}
+              className={`relative overflow-hidden rounded-2xl border border-amber-100 bg-linear-to-br from-neutral-50 via-neutral-100 to-neutral-200 text-neutral-800 font-medium tracking-wide px-10 py-5 min-w-40 shadow-sm hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 backdrop-blur-sm hover:cursor-pointer ${joining ? 'opacity-60 cursor-not-allowed' : ''}`}
               type="submit"
               disabled={joining}
             >
@@ -113,7 +113,7 @@ const Multiplayer = () => {
             </button>
           </form>
           <button
-            className="relative overflow-hidden rounded-2xl border border-amber-100 bg-gradient-to-br from-neutral-50 via-neutral-100 to-neutral-200 text-neutral-800 font-medium tracking-wide px-10 py-5 min-w-40 shadow-sm hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 backdrop-blur-sm hover:cursor-pointer"
+            className="relative overflow-hidden rounded-2xl border border-amber-100 bg-linear-to-br from-neutral-50 via-neutral-100 to-neutral-200 text-neutral-800 font-medium tracking-wide px-10 py-5 min-w-40 shadow-sm hover:shadow-lg hover:shadow-amber-100/50 transition-all duration-300 ease-out hover:-translate-y-0.5 active:translate-y-0 backdrop-blur-sm hover:cursor-pointer"
             onClick={() => setMode(null)}
           >
             <span className="relative z-10">Back</span>

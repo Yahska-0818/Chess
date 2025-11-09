@@ -5,7 +5,7 @@ const Button = ({ text, onClick }) => {
       className="
         relative overflow-hidden
         rounded-2xl border border-amber-100
-        bg-gradient-to-br from-neutral-50 via-neutral-100 to-neutral-200
+        bg-linear-to-br from-neutral-50 via-neutral-100 to-neutral-200
         text-neutral-800 font-medium tracking-wide
         px-10 py-5 min-w-40
         shadow-sm hover:shadow-lg hover:shadow-amber-100/50
