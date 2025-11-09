@@ -5,7 +5,18 @@ const config = require('./utils/config');
 const logger = require('./utils/logger');
 
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+
+const io = new Server(server, {
+  path: "/socket.io",
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+  transports: ["websocket", "polling"],
+  pingInterval: 25000,
+  pingTimeout: 30000,
+});
 
 const rooms = new Map();
 app.set('io', io);
@@ -24,21 +35,26 @@ io.on('connection', (socket) => {
 
     let meta = rooms.get(roomCode);
     if (!meta) meta = { white: null, black: null };
+
     let assigned;
     if (!meta.white && !meta.black) {
       assigned = Math.random() < 0.5 ? 'white' : 'black';
       meta[assigned] = socket.id;
     } else if (meta.white && !meta.black) {
-      meta.black = socket.id; assigned = 'black';
+      meta.black = socket.id;
+      assigned = 'black';
     } else if (!meta.white && meta.black) {
-      meta.white = socket.id; assigned = 'white';
+      meta.white = socket.id;
+      assigned = 'white';
     } else {
       socket.emit('room:error', 'Room is full');
       return;
     }
 
     rooms.set(roomCode, meta);
+
     socket.emit('room:color', assigned);
+
     io.to(roomCode).emit('room:roster', {
       white: !!meta.white,
       black: !!meta.black

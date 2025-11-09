@@ -22,10 +22,17 @@ function MultiplayerRoom({ roomCode }) {
   });
 
   useEffect(() => {
-    const s = io(import.meta.env.VITE_SOCKET_URL ?? "http://localhost:3003", {
-      transports: ["websocket"],
-    });
+    const s = io(
+      import.meta.env.VITE_SOCKET_URL || undefined,
+      {
+        path: "/socket.io",
+        transports: ["websocket", "polling"],
+        withCredentials: true,
+      }
+    );
+
     setSocket(s);
+
     s.emit("join-room", roomCode);
 
     s.on("room:color", (color) => setPlayerColor(color));
@@ -42,8 +49,13 @@ function MultiplayerRoom({ roomCode }) {
         playerColor={playerColor}
         viewAs={playerColor || "white"}
       />
+
       <div className="fixed bottom-20 right-6 w-[320px] max-h-[60vh] rounded-2xl bg-neutral-800/95 backdrop-blur p-3 ring-1 ring-black/30 shadow-xl">
-        <ChatPanel socket={socket} roomCode={roomCode} role={playerColor === "white" ? "p1" : "p2"} />
+        <ChatPanel
+          socket={socket}
+          roomCode={roomCode}
+          role={playerColor === "white" ? "p1" : "p2"}
+        />
       </div>
     </div>
   );
