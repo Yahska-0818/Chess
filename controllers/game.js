@@ -24,7 +24,6 @@ class SimpleLRU {
       this.map.delete(key);
       return undefined;
     }
-
     this.map.delete(key);
     this.map.set(key, entry);
     return entry.val;
@@ -234,9 +233,22 @@ gameRouter.get('/:id/moves/:row/:col', async (request, response) => {
 gameRouter.post('/:id/move', async (request, response) => {
   try {
     const { id } = request.params;
-    const { from, to } = request.body;
+    const { from, to, roomCode, playerColor } = request.body || {};
 
     if (!Array.isArray(from) || !Array.isArray(to)) return response.status(400).json({ error: 'Invalid coordinates' });
+
+    if (roomCode) {
+      if (!playerColor || !['white', 'black'].includes(playerColor)) {
+        return response.status(400).json({ error: 'playerColor required for multiplayer' });
+      }
+      const rooms = request.app.get('rooms');
+      if (rooms) {
+        const meta = rooms.get(roomCode);
+        if (!meta || !meta[playerColor]) {
+          return response.status(403).json({ error: 'This color is not assigned in this room' });
+        }
+      }
+    }
 
     const game = await Game.findById(id);
     if (!game) return response.status(404).json({ error: 'Game not found' });
@@ -253,6 +265,10 @@ gameRouter.post('/:id/move', async (request, response) => {
     const pieceToMove = board?.[fromRow]?.[fromCol];
     if (!pieceToMove) return response.status(400).json({ error: 'No piece at from position' });
     if (pieceToMove.color !== game.turn) return response.status(400).json({ error: "It's not your turn" });
+
+    if (roomCode && playerColor !== game.turn) {
+      return response.status(403).json({ error: 'Not your turn for this color' });
+    }
 
     const cacheKey = makeMovesCacheKey(game._id.toString(), board, fromRow, fromCol, game.turn, game.enPassantTarget);
     let legalMoves = moveCache.get(cacheKey);
@@ -421,7 +437,13 @@ gameRouter.post('/:id/move', async (request, response) => {
       }
     }
 
-    return response.json(formatGameState(gameObj, piecesForResponse));
+    const payload = formatGameState(gameObj, piecesForResponse);
+
+    const io = request.app.get('io');
+    if (io && roomCode) {
+      io.to(roomCode).emit('game:update', payload);
+    }
+    return response.json(payload);
   } catch (err) {
     console.error('move endpoint error:', err);
     return response.status(500).json({ error: 'Failed to process move' });
@@ -431,11 +453,27 @@ gameRouter.post('/:id/move', async (request, response) => {
 gameRouter.post('/:id/promote', async (request, response) => {
   try {
     const { id } = request.params;
-    const { from, to, promoteToType } = request.body;
+    const { from, to, promoteToType, roomCode, playerColor } = request.body || {};
 
     const game = await Game.findById(id);
     if (!game || game.status !== 'awaiting_promotion') {
       return response.status(400).json({ error: 'Not awaiting promotion' });
+    }
+
+    if (roomCode) {
+      if (!playerColor || !['white', 'black'].includes(playerColor)) {
+        return response.status(400).json({ error: 'playerColor required for multiplayer' });
+      }
+      const rooms = request.app.get('rooms');
+      if (rooms) {
+        const meta = rooms.get(roomCode);
+        if (!meta || !meta[playerColor]) {
+          return response.status(403).json({ error: 'This color is not assigned in this room' });
+        }
+      }
+      if (playerColor !== game.turn) {
+        return response.status(403).json({ error: 'Not your turn for this color' });
+      }
     }
 
     const fromRow = parseInt(from[0], 10);
@@ -504,7 +542,8 @@ gameRouter.post('/:id/promote', async (request, response) => {
       isCheckmate
     });
 
-    game.turn = opponentColor;
+    const nextTurn = opponentColor;
+    game.turn = nextTurn;
     game.enPassantTarget = null;
     game.promotionData = undefined;
 
@@ -523,7 +562,14 @@ gameRouter.post('/:id/promote', async (request, response) => {
     game.board = newBoard;
     await game.save();
 
-    response.json(formatGameState(game.toObject(), updatedPieces));
+    const payload = formatGameState(game.toObject(), updatedPieces);
+
+    const io = request.app.get('io');
+    if (io && roomCode) {
+      io.to(roomCode).emit('game:update', payload);
+    }
+
+    response.json(payload);
   } catch (err) {
     console.error('promote error:', err);
     response.status(500).json({ error: 'Failed to promote pawn' });

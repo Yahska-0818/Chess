@@ -41,12 +41,6 @@ pieceDefinitionSchema.index({ color: 1, type: 1 }, { unique: true });
 
 const PieceDefinition = mongoose.model('PieceDefinition', pieceDefinitionSchema);
 
-const pieceSchema = new mongoose.Schema({
-  color: { type: String, required: true },
-  type: { type: String, required: true },
-  moveCounter: { type: Number, default: 0 }
-}, { _id: false });
-
 const capturedPieceSchema = new mongoose.Schema({
   color: { type: String, required: true },
   type: { type: String, required: true },
