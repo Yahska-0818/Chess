@@ -48,6 +48,7 @@ function MultiplayerRoom({ roomCode }) {
         {...gameState}
         playerColor={playerColor}
         viewAs={playerColor || "white"}
+        chat={<ChatPanel socket={socket} roomCode={roomCode} role={playerColor === "white" ? "p1" : "p2"} />}
       />
 
       <div className="fixed bottom-20 right-6 w-[320px] max-h-[60vh] rounded-2xl bg-neutral-800/95 backdrop-blur p-3 ring-1 ring-black/30 shadow-xl">

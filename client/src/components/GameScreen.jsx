@@ -1,6 +1,6 @@
-// components/GameScreen.jsx
 import React from "react";
-import ChessBoard from "./Chessboard"; // keep your filename casing consistent!
+import ChessBoard from "./Chessboard";
+import MoveHistory from "./MoveHistory";
 
 export default function GameScreen({
   game,
@@ -11,8 +11,10 @@ export default function GameScreen({
   resetGame,
   handleSquareClick,
   handlePromotion,
+  handleJumpToMove,
   playerColor,
   viewAs = "white",
+  chat = null,
 }) {
   if (loading) {
     return (
@@ -42,12 +44,15 @@ export default function GameScreen({
     <div className="min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-neutral-100 p-6">
       <header className="max-w-7xl mx-auto flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
-          <div className="text-2xl font-bold">ChessLab</div>
-          <span className={`px-3 py-1 rounded-full text-xs ${
-            playerColor === "white" ? "bg-white/20 text-white" : "bg-black/30 text-neutral-100"
-          }`}>
-            You are {playerColor ? playerColor.toUpperCase() : "—"}
-          </span>
+          {playerColor && (
+            <span
+              className={`px-3 py-1 rounded-full text-xs ${
+                playerColor === "white" ? "bg-white/20 text-white" : "bg-black/30 text-neutral-100"
+              }`}
+            >
+              You are {playerColor.toUpperCase()}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
@@ -76,7 +81,6 @@ export default function GameScreen({
             <div className="text-xs text-neutral-400">Moves: {game.moveHistory.length}</div>
           </div>
         </aside>
-
         <section className="col-span-8 flex items-center justify-center">
           <div className={`p-6 bg-gradient-to-b from-white/5 to-white/3 rounded-3xl shadow-2xl flex items-center justify-center ${!isYourTurn ? "opacity-95" : ""}`}>
             <ChessBoard
@@ -90,8 +94,19 @@ export default function GameScreen({
           </div>
         </section>
 
-        <aside className="col-span-2"></aside>
+        <aside className="col-span-2 flex flex-col gap-4">
+          <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl shadow-md ring-1 ring-black/20 w-80">
+            <h4 className="text-sm font-semibold text-neutral-200 mb-2">Move History</h4>
+            <MoveHistory moveHistory={game.moveHistory} currentMoveIndex={null} onJumpToMove={handleJumpToMove} />
+          </div>
+        </aside>
       </main>
+
+      {chat && playerColor && (
+        <div className="fixed bottom-20 right-6 w-[320px] max-h-[60vh] rounded-2xl bg-neutral-800/95 backdrop-blur p-3 ring-1 ring-black/30 shadow-xl">
+          {chat}
+        </div>
+      )}
 
       {promotionData && (
         <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-30">
