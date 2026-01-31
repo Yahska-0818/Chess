@@ -18,8 +18,8 @@
       "node": ">=18"
     },
   "scripts": {
-    "start": "NODE_ENV=production node index.js",
-    "dev": "NODE_ENV=development node --watch index.js",
+    "start": "NODE_ENV=production node server.js",
+    "dev": "NODE_ENV=development node --watch server.js",
     "test": "NODE_ENV=test node --test",
     "lint": "eslint .",
     "build:ui": "rm -rf dist && cd client && npm ci && npm run build && cp -a dist ../dist",
