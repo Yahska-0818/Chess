@@ -59,6 +59,7 @@ export default function ChessBoard({ chess, board, role, onMove }) {
       setPossibleMoves([]);
     }
   };
+
   const isBlackView = role === 'b';
   const displayBoard = isBlackView 
     ? [...board].reverse().map(row => [...row].reverse()) 
@@ -102,7 +103,7 @@ export default function ChessBoard({ chess, board, role, onMove }) {
                   <div className={`absolute w-3 h-3 rounded-full z-10 ${cell ? 'bg-red-500 ring-2 ring-white' : 'bg-black/20'}`} />
                 )}
                 {icon && (
-                  <div className="w-4/5 h-4/5 z-0 transform hover:scale-105 transition-transform">
+                  <div className="w-4/5 h-4/5 z-0 flex items-center justify-center transform hover:scale-105 transition-transform">
                     {icon}
                   </div>
                 )}
@@ -111,6 +112,7 @@ export default function ChessBoard({ chess, board, role, onMove }) {
           })
         )}
       </div>
+
       {promotionSquare && (
         <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg z-50 backdrop-blur-sm">
           <div className="bg-neutral-800 p-4 rounded-xl shadow-2xl border border-neutral-600">
@@ -122,7 +124,7 @@ export default function ChessBoard({ chess, board, role, onMove }) {
                   onClick={() => finalizePromotion(type)}
                   className="w-16 h-16 bg-neutral-700 hover:bg-neutral-600 rounded-lg p-2 transition-colors border border-neutral-600 hover:border-amber-400 flex items-center justify-center"
                 >
-                  <div className="transform scale-150">
+                  <div className="transform scale-150 flex items-center justify-center">
                     {pieceIcons[`${chess.turn() === 'w' ? 'white' : 'black'}_${typeMap[type]}`]}
                   </div>
                 </button>
