@@ -96,7 +96,7 @@ export default function Multiplayer() {
             </div>
             <button 
               onClick={copyToClipboard}
-              className={`h-full px-5 rounded-xl border font-bold transition-all duration-200 ${isCopied ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600 p-5 cursor-pointer'}`}
+              className={`h-full px-5 rounded-xl border font-bold transition-all duration-200 ${isCopied ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 p-5' : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600 p-5 cursor-pointer'}`}
               title="Copy to clipboard"
             >
               {isCopied ? "✓" : "Copy"}

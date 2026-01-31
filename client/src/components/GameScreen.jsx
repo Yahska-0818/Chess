@@ -1,3 +1,4 @@
+import { useState } from "react";
 import ChessBoard from "./ChessBoard";
 import MoveHistory from "./MoveHistory";
 import CapturedPieces from "./CapturedPieces";
@@ -19,6 +20,8 @@ export default function GameScreen({
   messages,
   sendChat
 }) {
+  const [activeTab, setActiveTab] = useState("chat");
+
   if (!isConnected) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-900 text-white gap-4">
@@ -35,25 +38,27 @@ export default function GameScreen({
   const topCaptured = role === 'b' ? captured.b : captured.w;
   const bottomCaptured = role === 'b' ? captured.w : captured.b;
 
+  const isMultiplayer = !!sendChat;
+
   return (
-    <div className="min-h-screen bg-neutral-900 text-neutral-100 font-sans selection:bg-amber-500/30">
-      <nav className="border-b border-neutral-800 bg-neutral-900/80 backdrop-blur sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold tracking-tight text-white hover:text-amber-400 transition-colors">
-            ChessLab
-          </Link>
-          <div className="flex gap-4 items-center">
-            {gameId && <div className="hidden md:block px-3 py-1 bg-neutral-800 rounded text-xs font-mono text-neutral-400">ID: {gameId}</div>}
-            <div className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-lg ${turn === 'w' ? 'bg-white text-black' : 'bg-neutral-800 text-white border border-neutral-600'}`}>
-              {turn === 'w' ? "White's Turn" : "Black's Turn"}
-            </div>
+    <div className="min-h-screen bg-neutral-900 text-neutral-100 font-sans flex flex-col">
+
+      <nav className="border-b border-neutral-800 bg-neutral-900/95 px-4 h-16 flex items-center justify-between sticky top-0 z-40">
+        <Link to="/" className="text-xl font-bold tracking-tight text-white hover:text-amber-400 transition-colors">
+          ChessLab
+        </Link>
+        <div className="flex gap-3 items-center">
+          {gameId && <div className="hidden md:block px-2 py-0.5 bg-neutral-800 rounded text-xs font-mono text-neutral-400">ID: {gameId}</div>}
+          <div className={`px-3 py-1 rounded-full text-xs font-bold shadow-sm ${turn === 'w' ? 'bg-white text-black' : 'bg-neutral-800 text-white border border-neutral-600'}`}>
+            {turn === 'w' ? "White" : "Black"}
           </div>
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto p-4 lg:p-8 flex flex-col lg:flex-row gap-8 justify-center items-start">
-
+      <main className="flex-1 max-w-7xl mx-auto p-4 lg:p-8 flex flex-col lg:flex-row gap-8 justify-center items-start w-full">
+        
         <div className="flex flex-col gap-3 w-full max-w-[600px] mx-auto lg:mx-0">
+          
           <div className="flex justify-between items-end px-1">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded bg-neutral-700 flex items-center justify-center font-bold text-neutral-400">
@@ -77,31 +82,67 @@ export default function GameScreen({
           </div>
         </div>
 
-        <div className="w-full lg:w-80 flex flex-col gap-4 h-[600px] lg:h-auto lg:min-h-[600px]">
+        <div className="w-full lg:w-80 flex flex-col gap-4">
           
+          {isMultiplayer && (
+            <div className="flex lg:hidden border-b border-neutral-700 mb-2">
+              <button 
+                onClick={() => setActiveTab('moves')}
+                className={`flex-1 py-3 text-sm font-bold ${activeTab === 'moves' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-neutral-400'}`}
+              >
+                Moves
+              </button>
+              <button 
+                onClick={() => setActiveTab('chat')}
+                className={`flex-1 py-3 text-sm font-bold ${activeTab === 'chat' ? 'text-amber-400 border-b-2 border-amber-400' : 'text-neutral-400'}`}
+              >
+                Chat
+              </button>
+            </div>
+          )}
+
           {isGameOver && (
-            <div className="animate-in slide-in-from-top-4 duration-500 bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl text-white shadow-2xl text-center">
+            <div className="bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl text-white shadow-2xl text-center mb-4">
               <h2 className="text-2xl font-black uppercase mb-1">Game Over</h2>
               <p className="text-amber-100 font-medium text-lg mb-4">
-                {winner === 'draw' ? 'Stalemate / Draw' : `${winner === 'w' ? 'White' : 'Black'} Wins!`}
+                {winner === 'draw' ? 'Draw' : `${winner === 'w' ? 'White' : 'Black'} Wins!`}
               </p>
               {resetGame && (
-                <button onClick={resetGame} className="bg-white text-orange-600 px-6 py-2 rounded-full font-bold hover:scale-105 transition-transform shadow-lg">
+                <button onClick={resetGame} className="bg-white text-orange-600 px-6 py-2 rounded-full font-bold shadow-lg w-full hover:scale-105 transition-transform">
                   Play Again
                 </button>
               )}
               {!resetGame && <Link to="/" className="block mt-2 underline text-sm hover:text-amber-100">Return to Menu</Link>}
             </div>
           )}
-
-          <div className={`${sendChat ? 'h-1/2' : 'h-full'} min-h-[200px]`}>
-            <MoveHistory history={history} />
+          <div className={`
+            ${!isMultiplayer ? 'block' : (activeTab === 'moves' ? 'block' : 'hidden')} 
+            lg:block 
+            h-[300px] lg:h-[400px]
+          `}>
+            <div className="h-full lg:hidden">
+              <MoveHistory history={history} showTitle={!isMultiplayer} />
+            </div>
+            <div className="hidden lg:block h-full">
+              <MoveHistory history={history} showTitle={true} />
+            </div>
           </div>
-          {sendChat && (
-            <div className="h-1/2 min-h-[200px]">
-              <ChatPanel messages={messages} onSend={sendChat} role={role} />
+
+          {isMultiplayer && (
+            <div className={`
+              ${activeTab === 'chat' ? 'block' : 'hidden'} 
+              lg:block 
+              h-[300px] lg:h-[300px]
+            `}>
+              <div className="h-full lg:hidden">
+                <ChatPanel messages={messages} onSend={sendChat} role={role} showTitle={false} />
+              </div>
+              <div className="hidden lg:block h-full">
+                <ChatPanel messages={messages} onSend={sendChat} role={role} showTitle={true} />
+              </div>
             </div>
           )}
+
         </div>
 
       </main>

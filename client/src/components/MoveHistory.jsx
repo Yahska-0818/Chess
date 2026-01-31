@@ -1,8 +1,7 @@
 import { useEffect, useRef } from "react";
 
-export default function MoveHistory({ history }) {
+export default function MoveHistory({ history, showTitle = true }) {
   const bottomRef = useRef(null);
-  
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [history]);
@@ -18,9 +17,12 @@ export default function MoveHistory({ history }) {
 
   return (
     <div className="flex flex-col h-full bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700 shadow-xl">
-      <div className="bg-neutral-900 p-3 border-b border-neutral-700 font-bold text-neutral-300">
-        Move History
-      </div>
+      {showTitle && (
+        <div className="bg-neutral-900 p-3 border-b border-neutral-700 font-bold text-neutral-300">
+          Move History
+        </div>
+      )}
+      
       <div className="flex-1 overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-neutral-600">
         <table className="w-full text-sm">
           <tbody>
@@ -31,9 +33,9 @@ export default function MoveHistory({ history }) {
                 <td className="py-2 pl-2 font-medium text-neutral-200">{row.black?.san}</td>
               </tr>
             ))}
-            <div ref={bottomRef} />
           </tbody>
         </table>
+        <div ref={bottomRef} />
       </div>
     </div>
   );
