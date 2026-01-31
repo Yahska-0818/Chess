@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "chess game",
   "homepage": "https://github.com/Yahska-0818/Chess#readme",
-  "bugs": { "url": "https://github.com/Yahska-0818/Chess/issues" },
+  "bugs": {
+    "url": "https://github.com/Yahska-0818/Chess/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Yahska-0818/Chess.git"
@@ -12,7 +14,9 @@
   "author": "Akshay",
   "type": "commonjs",
   "main": "index.js",
-  "engines": { "node": "18.x" },
+  "engines": {
+      "node": ">=18"
+    },
   "scripts": {
     "start": "NODE_ENV=production node index.js",
     "dev": "NODE_ENV=development node --watch index.js",
@@ -28,6 +32,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
+    "redis": "^5.10.0",
     "socket.io": "^4.8.1"
   }
 }
