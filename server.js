@@ -6,7 +6,6 @@ const { Server } = require('socket.io');
 const cors = require('cors');
 
 const socketHandler = require('./socket/socketHandler');
-require('./config/redis');
 
 const app = express();
 app.use(cors());
