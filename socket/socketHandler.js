@@ -89,6 +89,7 @@ const socketHandler = (io) => {
 
       io.to(`game:${gameId}`).emit('board_update', {
         fen: gameState.fen,
+        pgn: gameState.pgn,
         lastMove: gameState.lastMove,
         turn: gameState.turn,
         isGameOver: gameState.isGameOver,

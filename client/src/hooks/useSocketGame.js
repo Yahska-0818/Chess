@@ -12,10 +12,30 @@ export default function useSocketGame(gameId) {
   const [winner, setWinner] = useState(null);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  
   const [messages, setMessages] = useState([]);
   
   const socketRef = useRef(null);
+
+ 
+  const updateChessState = (fen, pgn) => {
+    const newGame = new Chess();
+    try {
+
+      if (pgn) {
+        newGame.loadPgn(pgn);
+      } 
+
+      else if (fen) {
+        newGame.load(fen);
+      }
+    } catch (e) {
+      console.warn("PGN Load Failed, falling back to FEN", e);
+      if (fen) newGame.load(fen);
+    }
+    setChess(newGame);
+    setFen(newGame.fen());
+    setTurn(newGame.turn());
+  };
 
   useEffect(() => {
     socketRef.current = io(SOCKET_URL);
@@ -24,20 +44,14 @@ export default function useSocketGame(gameId) {
     socketRef.current.on('connect', () => setIsConnected(true));
 
     socketRef.current.on('game_state', (state) => {
-      const newGame = new Chess(state.fen);
-      setChess(newGame);
-      setFen(newGame.fen());
-      setTurn(newGame.turn());
+      updateChessState(state.fen, state.pgn);
       setRole(state.role);
       setIsGameOver(state.isGameOver);
       setWinner(state.winner);
     });
 
     socketRef.current.on('board_update', (update) => {
-      const newGame = new Chess(update.fen);
-      setChess(newGame);
-      setFen(update.fen);
-      setTurn(update.turn);
+      updateChessState(update.fen, update.pgn);
       setIsGameOver(update.isGameOver);
       setWinner(update.winner);
     });
@@ -59,6 +73,7 @@ export default function useSocketGame(gameId) {
         setChess(tempGame);
         setFen(tempGame.fen());
         setTurn(tempGame.turn());
+        
         socketRef.current.emit('make_move', { gameId, from, to, promotion });
         return true;
       }

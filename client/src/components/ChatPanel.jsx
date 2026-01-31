@@ -1,12 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 export default function ChatPanel({ messages, onSend, role, showTitle = true }) {
   const [input, setInput] = useState("");
-  const bottomRef = useRef(null);
-
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -47,7 +42,6 @@ export default function ChatPanel({ messages, onSend, role, showTitle = true }) 
             </div>
           );
         })}
-        <div ref={bottomRef} />
       </div>
 
       <form onSubmit={handleSubmit} className="p-3 bg-neutral-900 border-t border-neutral-700 flex gap-2">

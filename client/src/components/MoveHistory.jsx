@@ -1,11 +1,4 @@
-import { useEffect, useRef } from "react";
-
 export default function MoveHistory({ history, showTitle = true }) {
-  const bottomRef = useRef(null);
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [history]);
-
   const rows = [];
   for (let i = 0; i < history.length; i += 2) {
     rows.push({
@@ -35,7 +28,6 @@ export default function MoveHistory({ history, showTitle = true }) {
             ))}
           </tbody>
         </table>
-        <div ref={bottomRef} />
       </div>
     </div>
   );
