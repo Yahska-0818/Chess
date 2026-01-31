@@ -29,10 +29,13 @@ mongoose.connect(process.env.MONGODB_URI)
 
 app.post('/api/game/create', async (req, res) => {
   const Game = require('./models/Game');
+  const gameId = req.body.gameId || Math.random().toString(36).substring(2, 8).toUpperCase();
+  
   try {
-    const newGame = await Game.create({});
+    const newGame = await Game.create({ _id: gameId });
     res.json({ gameId: newGame._id });
   } catch (e) {
+    console.error(e);
     res.status(500).json({ error: 'Could not create game' });
   }
 });
