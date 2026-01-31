@@ -7,11 +7,13 @@ const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3003';
 export default function useSocketGame(gameId) {
   const [chess, setChess] = useState(new Chess());
   const [fen, setFen] = useState(chess.fen());
-  const [role, setRole] = useState(null); 
+  const [role, setRole] = useState(null);
   const [turn, setTurn] = useState('w');
   const [winner, setWinner] = useState(null);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  
+  const [messages, setMessages] = useState([]);
   
   const socketRef = useRef(null);
 
@@ -40,6 +42,10 @@ export default function useSocketGame(gameId) {
       setWinner(update.winner);
     });
 
+    socketRef.current.on('chat_message', (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+
     return () => socketRef.current.disconnect();
   }, [gameId]);
 
@@ -61,5 +67,14 @@ export default function useSocketGame(gameId) {
     return false;
   }, [chess, role, gameId]);
 
-  return { chess, fen, turn, role, winner, isGameOver, isConnected, makeMove };
+  const sendChat = useCallback((text) => {
+    if (socketRef.current) {
+      socketRef.current.emit('send_chat', { gameId, text });
+    }
+  }, [gameId]);
+
+  return { 
+    chess, fen, turn, role, winner, isGameOver, isConnected, makeMove,
+    messages, sendChat
+  };
 }

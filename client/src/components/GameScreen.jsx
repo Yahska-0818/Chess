@@ -1,7 +1,7 @@
-import React from "react";
 import ChessBoard from "./ChessBoard";
 import MoveHistory from "./MoveHistory";
 import CapturedPieces from "./CapturedPieces";
+import ChatPanel from "./ChatPanel";
 import { getCapturedPieces } from "../utils/gameHelpers";
 import { Link } from "react-router-dom";
 
@@ -15,7 +15,9 @@ export default function GameScreen({
   makeMove,
   resetGame,
   isConnected = true,
-  gameId
+  gameId,
+  messages,
+  sendChat
 }) {
   if (!isConnected) {
     return (
@@ -50,9 +52,8 @@ export default function GameScreen({
       </nav>
 
       <main className="max-w-7xl mx-auto p-4 lg:p-8 flex flex-col lg:flex-row gap-8 justify-center items-start">
-        
+
         <div className="flex flex-col gap-3 w-full max-w-[600px] mx-auto lg:mx-0">
-          
           <div className="flex justify-between items-end px-1">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded bg-neutral-700 flex items-center justify-center font-bold text-neutral-400">
@@ -76,7 +77,7 @@ export default function GameScreen({
           </div>
         </div>
 
-        <div className="w-full lg:w-80 flex flex-col gap-4">
+        <div className="w-full lg:w-80 flex flex-col gap-4 h-[600px] lg:h-auto lg:min-h-[600px]">
           
           {isGameOver && (
             <div className="animate-in slide-in-from-top-4 duration-500 bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl text-white shadow-2xl text-center">
@@ -93,9 +94,14 @@ export default function GameScreen({
             </div>
           )}
 
-          <div className="h-[400px] lg:h-[500px]">
+          <div className={`${sendChat ? 'h-1/2' : 'h-full'} min-h-[200px]`}>
             <MoveHistory history={history} />
           </div>
+          {sendChat && (
+            <div className="h-1/2 min-h-[200px]">
+              <ChatPanel messages={messages} onSend={sendChat} role={role} />
+            </div>
+          )}
         </div>
 
       </main>

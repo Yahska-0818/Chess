@@ -126,6 +126,27 @@ const socketHandler = (io) => {
         console.error("Move Error:", err);
       }
     });
+
+    socket.on('send_chat', async ({ gameId, text }) => {
+      try {
+        const roomName = `game:${gameId}`;
+        const cachedGame = await redisClient.get(roomName);
+        let role = 'spectator';
+
+        if (cachedGame) {
+          const gameState = JSON.parse(cachedGame);
+          if (socket.id === gameState.whitePlayer) role = 'w';
+          else if (socket.id === gameState.blackPlayer) role = 'b';
+        }
+        io.to(roomName).emit('chat_message', {
+          text,
+          role,
+          timestamp: Date.now()
+        });
+      } catch (err) {
+        console.error("Chat Error:", err);
+      }
+    });
   });
 };
 
