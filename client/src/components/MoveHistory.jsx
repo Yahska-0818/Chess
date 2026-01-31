@@ -1,81 +1,40 @@
-const MoveHistory = ({ moveHistory = [], currentMoveIndex = null, onJumpToMove }) => {
+import { useEffect, useRef } from "react";
+
+export default function MoveHistory({ history }) {
+  const bottomRef = useRef(null);
+  
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history]);
+
   const rows = [];
-  for (let i = 0; i < moveHistory.length; i += 2) {
+  for (let i = 0; i < history.length; i += 2) {
     rows.push({
-      moveNumber: Math.floor(i / 2) + 1,
-      white: moveHistory[i],
-      black: moveHistory[i + 1] || null,
-      whiteIndex: i,
-      blackIndex: i + 1
+      num: Math.floor(i / 2) + 1,
+      white: history[i],
+      black: history[i + 1]
     });
   }
 
-  const copyPGN = async () => {
-    const pgn = rows.map(r => `${r.moveNumber}. ${r.white?.notation || ""} ${r.black?.notation || ""}`).join(' ');
-    await navigator.clipboard.writeText(pgn);
-    alert('PGN copied to clipboard');
-  };
-
-  const exportJSON = () => {
-    const blob = new Blob([JSON.stringify(moveHistory, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'moveHistory.json';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  };
-
   return (
-    <div className="w-72 bg-white/5 backdrop-blur-md p-4 rounded-2xl shadow-lg ring-1 ring-black/20 flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-neutral-200">Move History</h4>
-        <div className="flex gap-2">
-          <button onClick={copyPGN} className="text-xs px-2 py-1 rounded-md bg-neutral-700 hover:bg-neutral-600 text-white">Copy PGN</button>
-          <button onClick={exportJSON} className="text-xs px-2 py-1 rounded-md bg-neutral-700 hover:bg-neutral-600 text-white">Export</button>
-        </div>
+    <div className="flex flex-col h-full bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700 shadow-xl">
+      <div className="bg-neutral-900 p-3 border-b border-neutral-700 font-bold text-neutral-300">
+        Move History
       </div>
-
-      <div className="overflow-auto max-h-[60vh]">
-        <table className="w-full table-fixed text-sm">
-          <thead className="text-neutral-400 text-left sticky top-0">
-            <tr>
-              <th className="w-12">#</th>
-              <th className="">White</th>
-              <th className="">Black</th>
-            </tr>
-          </thead>
+      <div className="flex-1 overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-neutral-600">
+        <table className="w-full text-sm">
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.moveNumber} className="align-top border-b border-white/5">
-                <td className="py-2 pr-2 text-neutral-300">{r.moveNumber}</td>
-                <td
-                  className={`py-2 pr-2 cursor-pointer ${currentMoveIndex === r.whiteIndex ? 'bg-amber-500/30 rounded-md' : ''}`}
-                  onClick={() => onJumpToMove && onJumpToMove(r.whiteIndex)}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-neutral-200">{r.white?.notation || ''}</span>
-                    {r.white?.capture && <span className="text-xs text-rose-400">x</span>}
-                  </div>
-                </td>
-                <td
-                  className={`py-2 pr-2 cursor-pointer ${currentMoveIndex === r.blackIndex ? 'bg-amber-500/30 rounded-md' : ''}`}
-                  onClick={() => onJumpToMove && r.black && onJumpToMove(r.blackIndex)}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-neutral-200">{r.black?.notation || ''}</span>
-                    {r.black?.capture && <span className="text-xs text-rose-400">x</span>}
-                  </div>
-                </td>
+            {rows.map((row) => (
+              <tr key={row.num} className="odd:bg-neutral-800 even:bg-neutral-800/50 border-b border-neutral-700/30">
+                <td className="py-2 pl-4 w-8 text-neutral-500 font-mono">{row.num}.</td>
+                <td className="py-2 pl-2 font-medium text-neutral-200">{row.white.san}</td>
+                <td className="py-2 pl-2 font-medium text-neutral-200">{row.black?.san}</td>
               </tr>
             ))}
+            <div ref={bottomRef} />
           </tbody>
         </table>
       </div>
     </div>
   );
 }
-
-export default MoveHistory

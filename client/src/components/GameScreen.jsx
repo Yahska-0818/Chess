@@ -1,144 +1,104 @@
 import React from "react";
-import ChessBoard from "./Chessboard";
+import ChessBoard from "./ChessBoard";
 import MoveHistory from "./MoveHistory";
+import CapturedPieces from "./CapturedPieces";
+import { getCapturedPieces } from "../utils/gameHelpers";
+import { Link } from "react-router-dom";
 
 export default function GameScreen({
-  game,
-  loading,
-  legalMoves,
-  selectedPiece,
-  promotionData,
+  chess,
+  fen,
+  turn,
+  role,
+  winner,
+  isGameOver,
+  makeMove,
   resetGame,
-  handleSquareClick,
-  handlePromotion,
-  handleJumpToMove,
-  playerColor,
-  viewAs = "white",
-  chat = null,
+  isConnected = true,
+  gameId
 }) {
-  if (loading) {
+  if (!isConnected) {
     return (
-      <div className="relative min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-white flex justify-center items-center text-2xl">
-        Loading Game...
+      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-900 text-white gap-4">
+        <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="animate-pulse">Connecting to server...</p>
       </div>
     );
   }
 
-  if (!game) {
-    return (
-      <div className="relative min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-white flex justify-center items-center text-2xl">
-        Error loading game.
-      </div>
-    );
-  }
+  const board = chess.board();
+  const history = chess.history({ verbose: true });
+  const captured = getCapturedPieces(fen);
 
-  const isYourTurn = playerColor && game.turn === playerColor;
-
-  const handleBoardClick = (r, c) => {
-    handleSquareClick(r, c);
-  };
-
-  const promotionPieces = ["queen", "rook", "bishop", "knight"];
+  const topCaptured = role === 'b' ? captured.b : captured.w;
+  const bottomCaptured = role === 'b' ? captured.w : captured.b;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-800 text-neutral-100 p-6">
-      <header className="max-w-7xl mx-auto flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
-          {playerColor && (
-            <span
-              className={`px-3 py-1 rounded-full text-xs ${
-                playerColor === "white" ? "bg-white/20 text-white" : "bg-black/30 text-neutral-100"
-              }`}
-            >
-              You are {playerColor.toUpperCase()}
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="text-sm text-neutral-300">
-            Turn:
-            <span className="font-semibold capitalize ml-1">{game.turn}</span>
-            {!isYourTurn && playerColor && (
-              <span className="ml-2 text-xs text-neutral-400">(opponent’s turn)</span>
-            )}
-          </div>
-          <button
-            onClick={resetGame}
-            className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white text-sm"
-          >
-            New Game
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
-        <aside className="col-span-2 flex flex-col gap-4">
-          <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl shadow-md ring-1 ring-black/20">
-            <h4 className="text-sm font-semibold text-neutral-200 mb-2">Game Info</h4>
-            <div className="text-xs text-neutral-400">Status: <span className="capitalize">{game.status}</span></div>
-            <div className="text-xs text-neutral-400">Winner: <span className="capitalize">{game.winner || '—'}</span></div>
-            <div className="text-xs text-neutral-400">Moves: {game.moveHistory.length}</div>
-          </div>
-        </aside>
-        <section className="col-span-8 flex items-center justify-center">
-          <div className={`p-6 bg-gradient-to-b from-white/5 to-white/3 rounded-3xl shadow-2xl flex items-center justify-center ${!isYourTurn ? "opacity-95" : ""}`}>
-            <ChessBoard
-              board={game.board}
-              legalMoves={legalMoves}
-              selectedPiece={selectedPiece}
-              inCheck={game.inCheck}
-              onSquareClick={handleBoardClick}
-              viewAs={viewAs}
-            />
-          </div>
-        </section>
-
-        <aside className="col-span-2 flex flex-col gap-4">
-          <div className="bg-white/5 backdrop-blur-md p-4 rounded-2xl shadow-md ring-1 ring-black/20 w-80">
-            <h4 className="text-sm font-semibold text-neutral-200 mb-2">Move History</h4>
-            <MoveHistory moveHistory={game.moveHistory} currentMoveIndex={null} onJumpToMove={handleJumpToMove} />
-          </div>
-        </aside>
-      </main>
-
-      {chat && playerColor && (
-        <div className="fixed bottom-20 right-6 w-[320px] max-h-[60vh] rounded-2xl bg-neutral-800/95 backdrop-blur p-3 ring-1 ring-black/30 shadow-xl">
-          {chat}
-        </div>
-      )}
-
-      {promotionData && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-30">
-          <div className="bg-neutral-800 p-6 rounded-2xl flex flex-col items-center gap-4 shadow-2xl w-fit">
-            <h3 className="text-2xl font-bold">Promote to:</h3>
-            <div className="flex gap-4">
-              {promotionPieces.map((pieceName) => (
-                <button
-                  key={pieceName}
-                  className="w-20 h-20 p-2 bg-neutral-700 hover:bg-neutral-600 rounded-lg flex items-center justify-center transition-colors"
-                  onClick={() => handlePromotion(pieceName)}
-                >
-                  <div className="w-full h-full grid place-items-center capitalize">{pieceName}</div>
-                </button>
-              ))}
+    <div className="min-h-screen bg-neutral-900 text-neutral-100 font-sans selection:bg-amber-500/30">
+      <nav className="border-b border-neutral-800 bg-neutral-900/80 backdrop-blur sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link to="/" className="text-xl font-bold tracking-tight text-white hover:text-amber-400 transition-colors">
+            ChessLab
+          </Link>
+          <div className="flex gap-4 items-center">
+            {gameId && <div className="hidden md:block px-3 py-1 bg-neutral-800 rounded text-xs font-mono text-neutral-400">ID: {gameId}</div>}
+            <div className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-lg ${turn === 'w' ? 'bg-white text-black' : 'bg-neutral-800 text-white border border-neutral-600'}`}>
+              {turn === 'w' ? "White's Turn" : "Black's Turn"}
             </div>
           </div>
         </div>
-      )}
+      </nav>
 
-      {game.winner && (
-        <div className="fixed inset-0 bg-black/60 flex justify-center items-center z-20">
-          <div className="bg-neutral-800 p-8 rounded-2xl flex flex-col items-center gap-6 shadow-2xl">
-            <h3 className="text-3xl font-bold">
-              {game.winner === 'Stalemate' ? 'Stalemate' : `${game.winner.toUpperCase()} Wins`}
-            </h3>
-            <button onClick={resetGame} className="px-6 py-2 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white">
-              Restart
-            </button>
+      <main className="max-w-7xl mx-auto p-4 lg:p-8 flex flex-col lg:flex-row gap-8 justify-center items-start">
+        
+        <div className="flex flex-col gap-3 w-full max-w-[600px] mx-auto lg:mx-0">
+          
+          <div className="flex justify-between items-end px-1">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded bg-neutral-700 flex items-center justify-center font-bold text-neutral-400">
+                {role === 'w' ? 'B' : 'W'}
+              </div>
+              <span className="text-sm font-medium text-neutral-400">Opponent</span>
+            </div>
+            <CapturedPieces pieces={topCaptured} />
+          </div>
+
+          <ChessBoard chess={chess} board={board} role={role} onMove={makeMove} />
+
+          <div className="flex justify-between items-start px-1">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded bg-emerald-700 flex items-center justify-center font-bold text-white shadow-lg shadow-emerald-900/20">
+                {role === 'b' ? 'B' : 'W'}
+              </div>
+              <span className="text-sm font-medium text-white">You</span>
+            </div>
+            <CapturedPieces pieces={bottomCaptured} />
           </div>
         </div>
-      )}
+
+        <div className="w-full lg:w-80 flex flex-col gap-4">
+          
+          {isGameOver && (
+            <div className="animate-in slide-in-from-top-4 duration-500 bg-gradient-to-br from-amber-500 to-orange-600 p-6 rounded-2xl text-white shadow-2xl text-center">
+              <h2 className="text-2xl font-black uppercase mb-1">Game Over</h2>
+              <p className="text-amber-100 font-medium text-lg mb-4">
+                {winner === 'draw' ? 'Stalemate / Draw' : `${winner === 'w' ? 'White' : 'Black'} Wins!`}
+              </p>
+              {resetGame && (
+                <button onClick={resetGame} className="bg-white text-orange-600 px-6 py-2 rounded-full font-bold hover:scale-105 transition-transform shadow-lg">
+                  Play Again
+                </button>
+              )}
+              {!resetGame && <Link to="/" className="block mt-2 underline text-sm hover:text-amber-100">Return to Menu</Link>}
+            </div>
+          )}
+
+          <div className="h-[400px] lg:h-[500px]">
+            <MoveHistory history={history} />
+          </div>
+        </div>
+
+      </main>
     </div>
   );
 }
