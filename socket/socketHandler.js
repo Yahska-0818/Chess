@@ -1,13 +1,16 @@
 const { Chess } = require('chess.js');
 const Game = require('../models/Game');
 
+
 const activeGames = new Map(); 
 
 const socketHandler = (io) => {
   io.on('connection', (socket) => {
+
     socket.on('join_game', async (gameId) => {
       const roomName = `game:${gameId}`;
       socket.join(roomName);
+
 
       let gameState = activeGames.get(gameId);
 
@@ -22,13 +25,12 @@ const socketHandler = (io) => {
             whitePlayer: dbGame.whitePlayer,
             blackPlayer: dbGame.blackPlayer,
             isGameOver: dbGame.isGameOver,
-            winner: dbGame.winner,
-            history: []
+            winner: dbGame.winner
           };
           activeGames.set(gameId, gameState);
         } else {
+
           await Game.create({ _id: gameId });
-          
           gameState = {
             fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
             pgn: '',
@@ -69,28 +71,36 @@ const socketHandler = (io) => {
       const gameState = activeGames.get(gameId);
       if (!gameState || gameState.isGameOver) return;
 
-      const chess = new Chess(gameState.fen);
-      const move = chess.move({ from, to, promotion: promotion || 'q' });
+      const chess = new Chess();
+      if (gameState.pgn) {
+        chess.loadPgn(gameState.pgn);
+      } else {
+        chess.load(gameState.fen);
+      }
 
+      const move = chess.move({ from, to, promotion: promotion || 'q' });
       if (!move) return socket.emit('error', 'Invalid move');
+
 
       gameState.fen = chess.fen();
       gameState.pgn = chess.pgn();
       gameState.turn = chess.turn();
-      gameState.lastMove = { from, to, san: move.san };
+      
 
-      if (chess.isGameOver()) {
-        gameState.isGameOver = true;
-        if (chess.isCheckmate()) gameState.winner = chess.turn() === 'w' ? 'b' : 'w';
-        else if (chess.isDraw()) gameState.winner = 'draw';
-      }
+      if (!gameState.moves) gameState.moves = [];
+      gameState.moves.push({
+        from: move.from,
+        to: move.to,
+        san: move.san,
+        color: move.color
+      });
+
 
       activeGames.set(gameId, gameState);
 
       io.to(`game:${gameId}`).emit('board_update', {
         fen: gameState.fen,
-        pgn: gameState.pgn,
-        lastMove: gameState.lastMove,
+        moves: gameState.moves,
         turn: gameState.turn,
         isGameOver: gameState.isGameOver,
         winner: gameState.winner
@@ -98,14 +108,13 @@ const socketHandler = (io) => {
 
       if (gameState.isGameOver) {
         await Game.findByIdAndDelete(gameId);
-        
         setTimeout(() => activeGames.delete(gameId), 3600000);
       } else {
         Game.findByIdAndUpdate(gameId, {
           fen: gameState.fen,
           pgn: gameState.pgn,
-          turn: gameState.turn,
-          lastMove: gameState.lastMove
+          moves: gameState.moves,
+          turn: gameState.turn
         }).exec();
       }
     });
@@ -124,9 +133,6 @@ const socketHandler = (io) => {
         role,
         timestamp: Date.now()
       });
-    });
-
-    socket.on('disconnect', () => {
     });
   });
 };
