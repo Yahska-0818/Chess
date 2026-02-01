@@ -3,5 +3,5 @@ import GameScreen from '../components/GameScreen';
 
 export default function LocalGame() {
   const gameState = useLocalGame();
-  return <GameScreen {...gameState} role={gameState.turn} />;
+  return <GameScreen {...gameState} role={gameState.turn} moveList={gameState.moveList} />;
 }

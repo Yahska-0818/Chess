@@ -19,7 +19,7 @@ export default function GameScreen({
   gameId,
   messages,
   sendChat,
-  moveList
+  moveList = []
 }) {
   const [activeTab, setActiveTab] = useState("chat");
 
@@ -33,13 +33,13 @@ export default function GameScreen({
   }
 
   const board = chess.board();
-  const history = chess.history({ verbose: true });
   const captured = getCapturedPieces(fen);
 
   const topCaptured = role === 'b' ? captured.b : captured.w;
   const bottomCaptured = role === 'b' ? captured.w : captured.b;
 
   const isMultiplayer = !!sendChat;
+  const finalMoves = moveList;
 
   return (
     <div className="min-h-screen bg-neutral-900 text-neutral-100 font-sans flex flex-col">
@@ -122,10 +122,10 @@ export default function GameScreen({
             h-[300px] lg:h-[400px]
           `}>
             <div className="h-full lg:hidden">
-              <MoveHistory history={history} showTitle={!isMultiplayer} />
+              <MoveHistory moves={finalMoves} showTitle={!isMultiplayer} />
             </div>
             <div className="hidden lg:block h-full">
-              <MoveHistory moves={moveList} showTitle={true} />
+              <MoveHistory moves={finalMoves} showTitle={true} />
             </div>
           </div>
 

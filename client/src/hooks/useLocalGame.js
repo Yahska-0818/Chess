@@ -7,6 +7,7 @@ export default function useLocalGame() {
   const [turn, setTurn] = useState('w');
   const [isGameOver, setIsGameOver] = useState(false);
   const [winner, setWinner] = useState(null);
+  const [moveList, setMoveList] = useState([]);
 
   const makeMove = useCallback((from, to, promotion = 'q') => {
     const tempGame = new Chess(chess.fen());
@@ -17,6 +18,14 @@ export default function useLocalGame() {
         setFen(tempGame.fen());
         setTurn(tempGame.turn());
         
+        const newMove = {
+          from: move.from,
+          to: move.to,
+          san: move.san,
+          color: move.color
+        };
+        setMoveList((prev) => [...prev, newMove]);
+
         if (tempGame.isGameOver()) {
           setIsGameOver(true);
           if (tempGame.isCheckmate()) setWinner(tempGame.turn() === 'w' ? 'b' : 'w');
@@ -36,7 +45,12 @@ export default function useLocalGame() {
     setTurn('w');
     setIsGameOver(false);
     setWinner(null);
+    setMoveList([]);
   };
 
-  return { chess, fen, turn, role: null, winner, isGameOver, isConnected: true, makeMove, resetGame };
+  return { 
+    chess, fen, turn, role: null, winner, isGameOver, 
+    isConnected: true, makeMove, resetGame,
+    moveList
+  };
 }
