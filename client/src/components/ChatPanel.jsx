@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState,useRef } from "react";
 
 export default function ChatPanel({ messages, onSend, role, showTitle = true }) {
   const [input, setInput] = useState("");
+  const bottomRef = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -9,6 +10,7 @@ export default function ChatPanel({ messages, onSend, role, showTitle = true }) 
       onSend(input.trim());
       setInput("");
     }
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
