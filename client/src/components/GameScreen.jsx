@@ -18,7 +18,8 @@ export default function GameScreen({
   isConnected = true,
   gameId,
   messages,
-  sendChat
+  sendChat,
+  moveList
 }) {
   const [activeTab, setActiveTab] = useState("chat");
 
@@ -124,7 +125,7 @@ export default function GameScreen({
               <MoveHistory history={history} showTitle={!isMultiplayer} />
             </div>
             <div className="hidden lg:block h-full">
-              <MoveHistory history={history} showTitle={true} />
+              <MoveHistory moves={moveList} showTitle={true} />
             </div>
           </div>
 

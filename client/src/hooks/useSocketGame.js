@@ -13,7 +13,7 @@ export default function useSocketGame(gameId) {
   const [isGameOver, setIsGameOver] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [messages, setMessages] = useState([]);
-  
+  const [moveList, setMoveList] = useState([]);
   const socketRef = useRef(null);
 
  
@@ -45,6 +45,7 @@ export default function useSocketGame(gameId) {
 
     socketRef.current.on('game_state', (state) => {
       updateChessState(state.fen, state.pgn);
+      setMoveList(state.moves || []);
       setRole(state.role);
       setIsGameOver(state.isGameOver);
       setWinner(state.winner);
@@ -54,6 +55,7 @@ export default function useSocketGame(gameId) {
       updateChessState(update.fen, update.pgn);
       setIsGameOver(update.isGameOver);
       setWinner(update.winner);
+      setMoveList(update.moves || []);
     });
 
     socketRef.current.on('chat_message', (msg) => {
@@ -90,6 +92,6 @@ export default function useSocketGame(gameId) {
 
   return { 
     chess, fen, turn, role, winner, isGameOver, isConnected, makeMove,
-    messages, sendChat
+    messages, sendChat, moveList
   };
 }
